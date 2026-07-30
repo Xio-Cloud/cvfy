@@ -1,4 +1,34 @@
 <script lang="ts" setup>
+import { CV_PARTS, type CvPart } from '~/types/cvfy'
+import { useCvState } from '~/data/useCvState'
+
+const { formSettings } = useCvState()
+
+const previewSectionMap: Record<CvPart, string> = {
+  about: 'CvPreviewAbout',
+  skills: 'CvPreviewSkills',
+  social: 'CvPreviewSocial',
+  work: 'CvPreviewExperience',
+  education: 'CvPreviewEducation',
+  projects: 'CvPreviewProjects',
+}
+
+function shouldDisplaySection(section: CvPart) {
+  const displaySectionMap: Record<CvPart, boolean> = {
+    about: Boolean(formSettings.value.displayAbout),
+    skills: Boolean(formSettings.value.displaySkills),
+    social: Boolean(formSettings.value.displaySocial),
+    work: Boolean(formSettings.value.displayWork),
+    education: Boolean(formSettings.value.displayEducation),
+    projects: Boolean(formSettings.value.displayProjects),
+  }
+  return displaySectionMap[section]
+}
+
+const orderedSections = computed(() => {
+  const sectionOrder = formSettings.value.sectionOrder ?? [...CV_PARTS]
+  return sectionOrder.filter(shouldDisplaySection)
+})
 </script>
 
 <template>
@@ -7,23 +37,19 @@
       <div class="flex flex-col justify-center">
         <CvPreviewName />
         <CvPreviewTitle />
-        <CvPreviewAbout />
       </div>
       <div class="flex gap-2">
         <CvPreviewContact />
-        <CvPreviewSocial />
       </div>
     </div>
     <CvProfileImageViewer class="rounded ml-2" />
   </div>
 
-  <CvPreviewSkills />
-
-  <CvPreviewExperience />
-
-  <CvPreviewEducation />
-
-  <CvPreviewProjects />
+  <component
+    :is="previewSectionMap[section]"
+    v-for="section in orderedSections"
+    :key="section"
+  />
 </template>
 
 <style lang="postcss" scoped>

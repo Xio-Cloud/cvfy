@@ -13,7 +13,10 @@ const workSorted = computed(() => {
 </script>
 
 <template>
-  <section class="cv__section cv__section--main w-full">
+  <section
+    v-if="formSettings.displayWork"
+    class="cv__section cv__section--main w-full"
+  >
     <h4 class="cv__section-title cv__section-title--main">
       {{ $t("experience") }}
     </h4>

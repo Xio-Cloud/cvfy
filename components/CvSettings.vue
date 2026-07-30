@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SectionNameList } from '~/types/cvfy'
+import { CV_PARTS, type CvPart, SectionNameList } from '~/types/cvfy'
 import { useCvState } from '~/data/useCvState'
 
 const {
@@ -7,6 +7,7 @@ const {
   uploadCV,
   clearForm,
   resetForm,
+  moveSection,
 } = useCvState()
 const switchLocalePath = useSwitchLocalePath()
 const i18n = useI18n()
@@ -32,6 +33,17 @@ const config = {
     { name: 'pt-name', code: 'pt' },
   ],
 }
+
+const sectionLabels: Record<CvPart, string> = {
+  about: 'about-me',
+  skills: 'skills',
+  social: 'social',
+  work: 'experience',
+  education: 'education',
+  projects: 'projects',
+}
+
+const orderedSections = computed(() => formSettings.value.sectionOrder ?? [...CV_PARTS])
 
 watch(
   () => formSettings.value,
@@ -293,6 +305,11 @@ function getCurrentColor(colorValue: string): {
                   class="form__label"
                   for="aboutme"
                 >🌟 {{ $t("about-me") }}</label>
+                <CvDisplayCheckbox
+                  class="mb-2"
+                  :display-section="Boolean(formSettings.displayAbout)"
+                  section-name="about"
+                />
                 <textarea
                   id="aboutme"
                   v-model="formSettings.aboutme"
@@ -318,6 +335,11 @@ function getCurrentColor(colorValue: string): {
           </template>
           <template #content>
             <div>
+              <CvDisplayCheckbox
+                class="mb-10"
+                :display-section="Boolean(formSettings.displaySkills)"
+                section-name="skills"
+              />
               <CvInputTags
                 v-model="formSettings.jobSkills"
                 tag-list-name="jobSkills"
@@ -447,6 +469,41 @@ function getCurrentColor(colorValue: string): {
         :name="value"
       />
       <!-- HISTORY SECTIONS -->
+
+      <!-- SECTION ORDER -->
+      <fieldset class="form__section grid gap-3 px-6 py-3">
+        <legend class="form__legend">
+          Section order
+        </legend>
+        <ul class="grid gap-2">
+          <li
+            v-for="(section, index) in orderedSections"
+            :key="section"
+            class="flex items-center justify-between form__btn form__btn--ghost"
+          >
+            <span>{{ $t(sectionLabels[section]) }}</span>
+            <div class="flex gap-2">
+              <button
+                class="form__btn form__btn--ghost"
+                type="button"
+                :disabled="index === 0"
+                @click="moveSection({ section, direction: 'up' })"
+              >
+                ↑
+              </button>
+              <button
+                class="form__btn form__btn--ghost"
+                type="button"
+                :disabled="index === orderedSections.length - 1"
+                @click="moveSection({ section, direction: 'down' })"
+              >
+                ↓
+              </button>
+            </div>
+          </li>
+        </ul>
+      </fieldset>
+      <!-- SECTION ORDER -->
 
       <!-- CTA -->
       <div class="form__section flex flex-col p-6 gap-3">

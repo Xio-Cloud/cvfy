@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { EditorContent, useEditor } from '@tiptap/vue-3'
-import StarterKit from '@tiptap/starter-kit'
+import { renderMarkdown } from '~/utils/markdown'
 
 const props = withDefaults(
   defineProps<{
@@ -18,53 +17,30 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (event: 'update:modelValue', value: string | null | undefined): void
+  (event: 'update:modelValue', value: string): void
 }>()
 
-const editor = useEditor({
-  content: '<p><i>Write something here...</i></p>',
-  extensions: [StarterKit],
-  editorProps: {
-    editable: () => {
-      return !props.readOnly
-    },
-    attributes: {
-      ...(props.id && { id: `${String(props.id)}-editor` }),
-      class: props.class,
-    },
-  },
-  onUpdate: () => {
-    emit('update:modelValue', editor.value?.getHTML())
-  },
-})
-
-onMounted(() => {
-  editor.value?.commands.setContent(props.modelValue, false, {
-    preserveWhitespace: 'full',
-  })
-})
-
-watch(
-  () => props.modelValue,
-  (value) => {
-    const isSame = editor.value?.getHTML() === value
-
-    if (isSame)
-      return
-
-    editor.value?.commands.setContent(value, false)
-  },
-)
+const markdownHtml = computed(() => renderMarkdown(props.modelValue))
 </script>
 
 <template>
-  <EditorContent :editor="editor" />
+  <div v-if="readOnly" class="markdown-content" :class="props.class" v-html="markdownHtml" />
+  <textarea
+    v-else
+    :id="id"
+    :value="modelValue ?? ''"
+    :class="props.class"
+    rows="6"
+    placeholder="Write using Markdown"
+    @input="emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
+  />
 </template>
 
 <style lang="postcss">
-.tiptap {
+.markdown-content {
   font-weight: 300;
   line-height: 1.5;
+
   ul,
   ol {
     @apply pl-4;
@@ -73,6 +49,10 @@ watch(
 
   li::marker {
     color: var(--primary);
+  }
+
+  p + p {
+    @apply mt-2;
   }
 }
 </style>
