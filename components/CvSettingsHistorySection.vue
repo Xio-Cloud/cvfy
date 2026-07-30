@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { useCvState } from '~/data/useCvState'
-import type { OptionalSection, SectionName, SectionNameList } from '~/types/cvfy'
+import type { SectionName, SectionNameList } from '~/types/cvfy'
 
-const props = defineProps<
+defineProps<
   {
     section: SectionName
     name: typeof SectionNameList[SectionName]
@@ -10,7 +10,11 @@ const props = defineProps<
 >()
 
 const { formSettings } = useCvState()
-const displaySection = computed(() => `display${props.section[0].toLocaleUpperCase}${props.section.slice(1)}` as OptionalSection)
+const displaySectionMap = {
+  work: 'displayWork',
+  education: 'displayEducation',
+  projects: 'displayProjects',
+} as const
 </script>
 
 <template>
@@ -24,10 +28,9 @@ const displaySection = computed(() => `display${props.section[0].toLocaleUpperCa
       <template #content>
         <div>
           <CvDisplayCheckbox
-            v-if="section !== 'work'"
             class="mb-10"
-            :display-section="formSettings[displaySection]"
-            :section-name="name"
+            :display-section="formSettings[displaySectionMap[section]]"
+            :section-name="section"
           />
           <CvDynamicSection
             :section-name="section"

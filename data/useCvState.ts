@@ -4,13 +4,16 @@ import {
   cvSettingsEmptyTemplate,
 } from './example-cv-settings'
 import {
+  CV_PARTS,
   type Cv,
   type CvEvent,
+  type CvPart,
   type DefaultSkill,
   type LanguagesSkill,
   type SectionName,
   SectionNameList,
 } from '~/types/cvfy'
+import { htmlSummaryToMarkdown } from '~/utils/markdown'
 
 const state = reactive({
   formSettings: { ...cvSettingsEmptyTemplate } as Cv,
@@ -29,12 +32,12 @@ export function useCvState() {
       state.formSettings = {
         ...cvSettingTemplate,
       }
+      normalizeFormSettings(state.formSettings)
     }
     else {
       const cvSettingsObj = JSON.parse(cvSettings)
       state.formSettings = { ...cvSettingsEmptyTemplate, ...cvSettingsObj }
-      patchId(state.formSettings)
-      patchDisplayDate(state.formSettings)
+      normalizeFormSettings(state.formSettings)
     }
     localStorage.setItem(locale, JSON.stringify(state.formSettings))
     state.isLoading = false
@@ -108,8 +111,7 @@ export function useCvState() {
         ...cvSettingsEmptyTemplate,
         ...data.formSettings,
       }
-      patchId(state.formSettings)
-      patchDisplayDate(state.formSettings)
+      normalizeFormSettings(state.formSettings)
     }
     fr.readAsText(e.target.files[0])
   }
@@ -118,6 +120,7 @@ export function useCvState() {
     state.formSettings = {
       ...cvSettingTemplate,
     }
+    normalizeFormSettings(state.formSettings)
     localStorage.setItem(
       `cvSettings-${i18n.locale.value}`,
       JSON.stringify(state.formSettings),
@@ -125,23 +128,42 @@ export function useCvState() {
   }
 
   function clearForm(): void {
-    state.formSettings = cvSettingsEmptyTemplate
+    state.formSettings = { ...cvSettingsEmptyTemplate }
+    normalizeFormSettings(state.formSettings)
     localStorage.removeItem(`cvSettings-${i18n.locale.value}`)
   }
 
-  function changeDisplaySection(e: {
-    sectionName: string
-    status: boolean
-  }): void {
-    const propName = `display${e.sectionName
-      .slice(0, 1)
-      .toUpperCase()}${e.sectionName.slice(1)}` as
-      | 'displayEducation'
-      | 'displayProjects'
-      | 'displayJobSkills'
-      | 'displaySoftSkills'
-      | 'displayLanguages'
-    state.formSettings[propName] = e.status
+  function changeDisplaySection(e: { sectionName: string, status: boolean }): void {
+    const displayPropMap: Record<string, keyof Cv> = {
+      about: 'displayAbout',
+      skills: 'displaySkills',
+      social: 'displaySocial',
+      work: 'displayWork',
+      education: 'displayEducation',
+      projects: 'displayProjects',
+      jobSkills: 'displayJobSkills',
+      softSkills: 'displaySoftSkills',
+      languages: 'displayLanguages',
+      interests: 'displayInterests',
+    }
+
+    const propName = displayPropMap[e.sectionName]
+    if (propName) {
+      ;(state.formSettings as Record<string, boolean | undefined>)[propName] = e.status
+    }
+  }
+
+  function moveSection(e: { section: CvPart, direction: 'up' | 'down' }): void {
+    const currentOrder = state.formSettings.sectionOrder ?? [...CV_PARTS]
+    const sectionIndex = currentOrder.findIndex(section => section === e.section)
+    const newIndex = e.direction === 'up' ? sectionIndex - 1 : sectionIndex + 1
+    if (sectionIndex < 0 || newIndex < 0 || newIndex >= currentOrder.length)
+      return
+
+    const updatedOrder = [...currentOrder]
+    const [section] = updatedOrder.splice(sectionIndex, 1)
+    updatedOrder.splice(newIndex, 0, section)
+    state.formSettings.sectionOrder = updatedOrder
   }
 
   function patchId(formSettings: Cv) {
@@ -168,6 +190,51 @@ export function useCvState() {
     }
   }
 
+  function patchLegacySummaryFormat(formSettings: Cv) {
+    for (const key in SectionNameList) {
+      const section = key as SectionName
+      for (const e of formSettings[section]) {
+        e.summary = htmlSummaryToMarkdown(e.summary ?? '')
+      }
+    }
+  }
+
+  function patchDisplaySettings(formSettings: Cv) {
+    formSettings.displayAbout ??= true
+    formSettings.displaySkills ??= true
+    formSettings.displayWork ??= true
+    formSettings.displaySocial ??= true
+    formSettings.displayEducation ??= true
+    formSettings.displayProjects ??= true
+    formSettings.displayJobSkills ??= true
+    formSettings.displaySoftSkills ??= true
+    formSettings.displayLanguages ??= true
+    formSettings.displayInterests ??= true
+  }
+
+  function patchSectionOrder(formSettings: Cv) {
+    const savedOrder = formSettings.sectionOrder ?? []
+    const filteredSections: CvPart[] = []
+    for (const section of savedOrder) {
+      const normalizedSection = section as CvPart
+      if (CV_PARTS.includes(normalizedSection) && !filteredSections.includes(normalizedSection)) {
+        filteredSections.push(normalizedSection)
+      }
+    }
+    formSettings.sectionOrder = [
+      ...filteredSections,
+      ...CV_PARTS.filter(section => !filteredSections.includes(section)),
+    ]
+  }
+
+  function normalizeFormSettings(formSettings: Cv) {
+    patchId(formSettings)
+    patchDisplayDate(formSettings)
+    patchLegacySummaryFormat(formSettings)
+    patchDisplaySettings(formSettings)
+    patchSectionOrder(formSettings)
+  }
+
   return {
     ...toRefs(state),
     setUpCvSettings,
@@ -179,5 +246,6 @@ export function useCvState() {
     resetForm,
     clearForm,
     changeDisplaySection,
+    moveSection,
   }
 }

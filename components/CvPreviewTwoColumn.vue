@@ -1,7 +1,42 @@
 <script lang="ts" setup>
+import { CV_PARTS, type CvPart } from '~/types/cvfy'
 import { useCvState } from '~/data/useCvState'
 
 const { formSettings } = useCvState()
+
+const previewSectionMap: Record<CvPart, string> = {
+  about: 'CvPreviewAbout',
+  skills: 'CvPreviewSkills',
+  social: 'CvPreviewSocial',
+  work: 'CvPreviewExperience',
+  education: 'CvPreviewEducation',
+  projects: 'CvPreviewProjects',
+}
+
+function shouldDisplaySection(section: CvPart) {
+  const displaySectionMap: Record<CvPart, boolean> = {
+    about: Boolean(formSettings.value.displayAbout),
+    skills: Boolean(formSettings.value.displaySkills),
+    social: Boolean(formSettings.value.displaySocial),
+    work: Boolean(formSettings.value.displayWork),
+    education: Boolean(formSettings.value.displayEducation),
+    projects: Boolean(formSettings.value.displayProjects),
+  }
+  return displaySectionMap[section]
+}
+
+const orderedSections = computed(() => {
+  const sectionOrder = formSettings.value.sectionOrder ?? [...CV_PARTS]
+  return sectionOrder.filter(shouldDisplaySection)
+})
+
+const sidebarSections = computed(() => {
+  return orderedSections.value.filter(section => ['skills', 'social'].includes(section))
+})
+
+const mainSections = computed(() => {
+  return orderedSections.value.filter(section => ['about', 'work', 'education', 'projects'].includes(section))
+})
 </script>
 
 <template>
@@ -18,30 +53,23 @@ const { formSettings } = useCvState()
 
     <CvPreviewContact />
 
-    <CvPreviewSkills class="flex flex-col gap-6" />
-
-    <CvPreviewSocial />
+    <component
+      :is="previewSectionMap[section]"
+      v-for="section in sidebarSections"
+      :key="section"
+    />
   </div>
   <div class="pr-8 pl-5 py-8 col-span-2">
-    <CvPreviewAbout />
-
-    <hr class="cv__bar">
-
-    <CvPreviewExperience />
-
-    <hr
-      v-if="formSettings.displayEducation"
-      class="cv__bar"
+    <template
+      v-for="(section, index) in mainSections"
+      :key="section"
     >
-
-    <CvPreviewEducation />
-
-    <hr
-      v-if="formSettings.displayProjects"
-      class="cv__bar"
-    >
-
-    <CvPreviewProjects />
+      <hr
+        v-if="index > 0"
+        class="cv__bar"
+      >
+      <component :is="previewSectionMap[section]" />
+    </template>
   </div>
 </template>
 

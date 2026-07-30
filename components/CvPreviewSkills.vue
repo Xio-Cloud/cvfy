@@ -2,10 +2,22 @@
 import { useCvState } from '~/data/useCvState'
 
 const { formSettings } = useCvState()
+
+const hasVisibleSkillSection = computed(() => {
+  return formSettings.value.displaySkills && (
+    formSettings.value.displayJobSkills
+    || formSettings.value.displaySoftSkills
+    || formSettings.value.displayLanguages
+    || formSettings.value.displayInterests
+  )
+})
 </script>
 
 <template>
-  <section class="cv__section">
+  <section
+    v-if="hasVisibleSkillSection"
+    class="cv__section"
+  >
     <h4
       class="cv__section-title"
       :class="formSettings.layout === 'one-column' ? 'cv__section-title--main' : 'sr-only'"

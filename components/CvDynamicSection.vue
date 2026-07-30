@@ -8,7 +8,7 @@ const { sectionName, entries = [] } = defineProps<{
 }>()
 const { addEntry, removeEntry } = useCvState()
 function focusEditor(id: string) {
-  const editorElem = document.getElementById(`${id}-editor`)
+  const editorElem = document.getElementById(id)
   if (editorElem)
     editorElem.focus()
 }

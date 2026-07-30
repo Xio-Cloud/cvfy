@@ -33,8 +33,12 @@ export interface Cv {
   work: CvEvent[]
   projects: CvEvent[]
   displaySocial: boolean
+  displayAbout?: boolean
+  displaySkills?: boolean
+  displayWork?: boolean
   displayEducation: boolean
   displayProjects: boolean
+  sectionOrder?: CvPart[]
   activeColor: string
 }
 export interface CvEvent {
@@ -48,7 +52,13 @@ export interface CvEvent {
   summary: string
 }
 
-export type OptionalSection = 'displaySocial' | 'displayEducation' | 'displayProjects'
+export type OptionalSection =
+  | 'displayAbout'
+  | 'displaySkills'
+  | 'displaySocial'
+  | 'displayWork'
+  | 'displayEducation'
+  | 'displayProjects'
 
 export type SkillType =
   'jobSkills' |
@@ -73,3 +83,14 @@ export const SectionNameList = {
   projects: 'projects',
 } as const
 export type SectionName = keyof typeof SectionNameList
+
+export const CV_PARTS = [
+  'about',
+  'skills',
+  'work',
+  'education',
+  'projects',
+  'social',
+] as const
+
+export type CvPart = (typeof CV_PARTS)[number]

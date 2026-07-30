@@ -28,7 +28,7 @@ export const cvSettingTemplate: Cv = {
       to: new Date(1993, 4, 1),
       current: false,
       summary:
-        '<ul><li><p>Sed ut lorem viverra urna malesuada interdum in ut risus.</p></li><li><p>Duis at sem non justo aliquam iaculis.</p></li><li><p>Quisque lobortis nibh non turpis interdum ornare.</p></li><li><p>Sed et diam nec arcu tempor suscipit sit amet at tellus.</p></li><li><p>Duis quis diam imperdiet, pharetra lacus eget, fringilla odio.</p></li></ul>',
+        '- Sed ut lorem viverra urna malesuada interdum in ut risus.\n- Duis at sem non justo aliquam iaculis.\n- Quisque lobortis nibh non turpis interdum ornare.\n- Sed et diam nec arcu tempor suscipit sit amet at tellus.\n- Duis quis diam imperdiet, pharetra lacus eget, fringilla odio.',
     },
   ],
   work: [
@@ -40,7 +40,7 @@ export const cvSettingTemplate: Cv = {
       to: new Date(2012, 1, 1),
       current: true,
       summary:
-        '<ul><li><p>In placerat nisi pellentesque felis blandit, vel varius justo eleifend.</p></li><li><p>Etiam porttitor tortor vel lobortis ultricies.</p></li><li><p>Nam non libero accumsan, sagittis nibh vitae, auctor ligula.</p></li><li><p>Sed hendrerit dui a ante porttitor, vitae tristique ipsum laoreet.</p></li><li><p>Suspendisse interdum mauris a lectus dignissim, vitae aliquet ante tempor.</p></li></ul>',
+        '- In placerat nisi pellentesque felis blandit, vel varius justo eleifend.\n- Etiam porttitor tortor vel lobortis ultricies.\n- Nam non libero accumsan, sagittis nibh vitae, auctor ligula.\n- Sed hendrerit dui a ante porttitor, vitae tristique ipsum laoreet.\n- Suspendisse interdum mauris a lectus dignissim, vitae aliquet ante tempor.',
     },
     {
       id: '2',
@@ -50,7 +50,7 @@ export const cvSettingTemplate: Cv = {
       to: new Date(),
       current: true,
       summary:
-        '<ul><li><p>Sed ut lorem viverra urna malesuada interdum in ut risus.</p></li><li><p>Duis at sem non justo aliquam iaculis.</p></li><li><p>Quisque lobortis nibh non turpis interdum ornare.</p></li><li><p>Sed et diam nec arcu tempor suscipit sit amet at tellus.</p></li><li><p>Duis quis diam imperdiet, pharetra lacus eget, fringilla odio.</p></li></ul>',
+        '- Sed ut lorem viverra urna malesuada interdum in ut risus.\n- Duis at sem non justo aliquam iaculis.\n- Quisque lobortis nibh non turpis interdum ornare.\n- Sed et diam nec arcu tempor suscipit sit amet at tellus.\n- Duis quis diam imperdiet, pharetra lacus eget, fringilla odio.',
     },
   ],
   projects: [
@@ -62,16 +62,20 @@ export const cvSettingTemplate: Cv = {
       to: new Date(2012, 1, 1),
       current: true,
       summary:
-        '<ul><li><p>Sed ut lorem viverra urna malesuada interdum in ut risus.</p></li><li><p>Duis at sem non justo aliquam iaculis.</p></li><li><p>Quisque lobortis nibh non turpis interdum ornare.</p></li><li><p>Sed et diam nec arcu tempor suscipit sit amet at tellus.</p></li><li><p>Duis quis diam imperdiet, pharetra lacus eget, fringilla odio.</p></li></ul>',
+        '- Sed ut lorem viverra urna malesuada interdum in ut risus.\n- Duis at sem non justo aliquam iaculis.\n- Quisque lobortis nibh non turpis interdum ornare.\n- Sed et diam nec arcu tempor suscipit sit amet at tellus.\n- Duis quis diam imperdiet, pharetra lacus eget, fringilla odio.',
     },
   ],
   displaySocial: true,
+  displayAbout: true,
+  displaySkills: true,
+  displayWork: true,
   displayEducation: true,
   displayProjects: true,
   displayJobSkills: true,
   displaySoftSkills: true,
   displayLanguages: true,
   displayInterests: true,
+  sectionOrder: ['about', 'skills', 'work', 'education', 'projects', 'social'],
   activeColor: '#5B21B6',
 }
 
@@ -97,7 +101,15 @@ export const cvSettingsEmptyTemplate: Cv = {
   work: [],
   projects: [],
   displaySocial: true,
+  displayAbout: true,
+  displaySkills: true,
+  displayWork: true,
   displayEducation: true,
   displayProjects: false,
+  displayJobSkills: true,
+  displaySoftSkills: true,
+  displayLanguages: true,
+  displayInterests: true,
+  sectionOrder: ['about', 'skills', 'work', 'education', 'projects', 'social'],
   activeColor: '#5B21B6',
 }
