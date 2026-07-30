@@ -28,3 +28,9 @@ Demo: https://cvfy.xyz/
 - TailwindCSS
 - Nuxt 3
 - Cloudflare Pages
+
+## Cloudflare Pages deployment secrets
+To run the GitHub Actions deployment workflow, configure these repository secrets:
+
+- `CLOUDFLARE_API_TOKEN`: Cloudflare API token with permission to deploy to Pages
+- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account ID for the target Pages project (`cvfy`)
