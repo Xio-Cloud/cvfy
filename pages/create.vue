@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useCvState } from '~/data/useCvState'
 
-const CVFY_IMAGE = 'https://cvfy.xyz/CvFy-no-border.png'
+const CVFY_IMAGE = 'http://cv.xio.vn/CvFy-no-border.png'
 
 const { setUpCvSettings } = useCvState()
 const route = useRoute()
 const { t, locale } = useI18n()
 
-const href = `https://cvfy.xyz${route.path}`
+const href = `http://cv.xio.vn${route.path}`
 
 onMounted(() => {
   setUpCvSettings()

@@ -9,7 +9,7 @@ CvFy is an open-sourced multilingual app that makes CV creation faster and easie
 > [!NOTE]
 > PDF creation is client-side only, so results may differ among browsers.
 
-Demo: https://cvfy.xyz/
+Demo: http://cv.xio.vn/
 
 ## Features
 - Multilingual

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-const CVFY_IMAGE = 'https://cvfy.xyz/CvFy-no-border.png'
+const CVFY_IMAGE = 'http://cv.xio.vn/CvFy-no-border.png'
 
 const { locale, t } = useI18n()
 const route = useRoute()
 const localePath = useLocalePath()
-const HREF = `https://cvfy.xyz${route.path}`
-const GITHUB = 'https://github.com/claudiabdm/cvfy'
+const HREF = `http://cv.xio.vn${route.path}`
+const GITHUB = 'https://github.com/Xio-Cloud/cvfy'
 
 useHead({
   htmlAttrs: {
