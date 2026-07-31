@@ -30,15 +30,9 @@ jobs:
 
       - name: Generate static files
         run: |
-          npm run generate || true
-          if [ -f .output/public/index.html ]; then
-            echo "Static generation succeeded!"
-            rm -rf dist
-            cp -r .output/public dist
-          else
-            echo "Static generation failed!"
-            exit 1
-          fi
+          npm run generate
+          rm -rf dist
+          cp -r .output/public dist
 
       - name: Deploy to Cloudflare Pages
         env:

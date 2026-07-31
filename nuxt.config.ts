@@ -4,6 +4,7 @@ import en from './i18n/locales/en.json'
 
 try {
   sharp.cache(false)
+  sharp.concurrency(1)
 }
 catch {}
 
@@ -12,6 +13,7 @@ export default defineNuxtConfig({
 
   nitro: {
     prerender: {
+      concurrency: 1,
       crawlLinks: false,
       routes: [
         '/',
