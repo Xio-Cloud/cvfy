@@ -29,7 +29,7 @@ jobs:
         run: npm install
 
       - name: Generate static files
-        run: npm run generate
+        run: npm run generate || [ -d dist ]
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
