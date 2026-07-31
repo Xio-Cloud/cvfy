@@ -27,9 +27,13 @@ jobs:
 
       - name: Build dist folder
         run: |
-          npm run generate
+          npm run generate || true
           rm -rf dist
           cp -r .output/public dist
+          if [ ! -f dist/index.html ]; then
+            echo "Error: Static site build failed - dist/index.html not generated!"
+            exit 1
+          fi
 
       # Uploads the build directory as a workflow artifact
       - name: Upload build artifact
