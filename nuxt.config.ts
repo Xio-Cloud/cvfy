@@ -12,7 +12,29 @@ export default defineNuxtConfig({
 
   nitro: {
     prerender: {
-      concurrency: 1,
+      crawlLinks: false,
+      routes: [
+        '/',
+        '/create',
+        '/es',
+        '/es/create',
+        '/id',
+        '/id/create',
+        '/de',
+        '/de/create',
+        '/fr',
+        '/fr/create',
+        '/ar',
+        '/ar/create',
+        '/zh',
+        '/zh/create',
+        '/pt',
+        '/pt/create',
+        '/az',
+        '/az/create',
+        '/nl',
+        '/nl/create',
+      ],
     },
   },
 
