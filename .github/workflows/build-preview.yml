@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   build-preview:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Build Preview Site and Upload Build Artifact
     steps:
       - name: Checkout
