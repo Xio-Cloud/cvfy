@@ -26,11 +26,15 @@
     "@img/sharp-libvips-linux-x64": "^1.0.4",
     "@img/sharp-linux-x64": "^0.33.5",
     "@oxc-minify/binding-linux-x64-gnu": "^0.102.0",
+    "@oxc-minify/binding-wasm32-wasi": "^0.102.0",
     "@oxc-parser/binding-linux-x64-gnu": "^0.102.0",
     "@oxc-parser/binding-linux-x64-musl": "^0.102.0",
+    "@oxc-parser/binding-wasm32-wasi": "^0.102.0",
     "@oxc-transform/binding-linux-x64-gnu": "^0.102.0",
+    "@oxc-transform/binding-wasm32-wasi": "^0.102.0",
     "@rollup/rollup-linux-x64-gnu": "^4.53.3",
-    "@unrs/resolver-binding-linux-x64-gnu": "^1.11.1"
+    "@unrs/resolver-binding-linux-x64-gnu": "^1.11.1",
+    "@unrs/resolver-binding-wasm32-wasi": "^1.11.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.27.3",
