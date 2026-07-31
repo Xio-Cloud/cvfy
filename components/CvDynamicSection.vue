@@ -12,6 +12,44 @@ function focusEditor(id: string) {
   if (editorElem)
     editorElem.focus()
 }
+
+function toISOFormat(date: Date | string | undefined | null): string {
+  if (!date)
+    return ''
+  const d = new Date(date)
+  if (Number.isNaN(d.getTime()))
+    return ''
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function parseDateInput(val: string): Date {
+  if (!val)
+    return new Date()
+  const [year, month, day] = val.split('-').map(Number)
+  if (year && month && day) {
+    return new Date(year, month - 1, day)
+  }
+  return new Date(val)
+}
+
+function getFromDate(entry: CvEvent): string {
+  return toISOFormat(entry.from)
+}
+
+function setFromDate(entry: CvEvent, val: string) {
+  entry.from = parseDateInput(val)
+}
+
+function getToDate(entry: CvEvent): string {
+  return toISOFormat(entry.to)
+}
+
+function setToDate(entry: CvEvent, val: string) {
+  entry.to = parseDateInput(val)
+}
 </script>
 
 <template>
@@ -108,9 +146,10 @@ function focusEditor(id: string) {
                 </div>
                 <input
                   :id="`entryFrom-${entry.id}`"
-                  v-model="entry.from"
+                  :value="getFromDate(entry)"
                   class="form__control"
                   type="date"
+                  @input="setFromDate(entry, ($event.target as HTMLInputElement).value)"
                 >
               </div>
               <div class="form__group col-span-full">
@@ -131,9 +170,10 @@ function focusEditor(id: string) {
                 <input
                   v-if="!entry.current"
                   :id="`entryTo-${entry.id}`"
-                  v-model="entry.to"
+                  :value="getToDate(entry)"
                   class="form__control"
                   type="date"
+                  @input="setToDate(entry, ($event.target as HTMLInputElement).value)"
                 >
               </div>
               <div class="form__group col-span-full">
