@@ -26,7 +26,16 @@ jobs:
         run: npm install
 
       - name: Build dist folder
-        run: npm run generate || [ -d dist ]
+        run: |
+          npm run generate || true
+          if [ -f .output/public/index.html ]; then
+            echo "Static generation succeeded!"
+            mkdir -p dist
+            cp -r .output/public/* dist/
+          else
+            echo "Static generation failed!"
+            exit 1
+          fi
 
       # Uploads the build directory as a workflow artifact
       - name: Upload build artifact
