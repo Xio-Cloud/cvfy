@@ -47,11 +47,11 @@ definePageMeta({
       Made with ♥️ by
       <LandingLink
         class="underline"
-        to="https://github.com/claudiabdm"
+        to="https://github.com/Xio-Cloud"
         external
       >
         <span class="text-violet-800">
-          claudiabdm
+          Xio-Cloud
         </span>
       </LandingLink>
     </div>

@@ -19,7 +19,7 @@ useHead({
     },
     {
       name: 'author',
-      content: 'claudiabdm',
+      content: 'Xio-Cloud',
     },
     {
       property: 'og:image',
@@ -27,7 +27,7 @@ useHead({
     },
     {
       property: 'og:author',
-      content: 'Claudia Benito',
+      content: 'Xio-Cloud',
     },
     {
       property: 'og:title',
@@ -39,7 +39,7 @@ useHead({
     },
     {
       name: 'twitter:creator',
-      content: '@claudiabdm',
+      content: '@Xio-Cloud',
     },
     {
       name: 'twitter:title',

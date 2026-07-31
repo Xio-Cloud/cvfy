@@ -41,4 +41,4 @@ When submitting a PR, provide a comprehensive description of the changes and the
 
 # Contact
 
-If you have any questions or need any further assistance, you can reach out to [claudiabdm](https://github.com/claudiabdm).
+If you have any questions or need any further assistance, you can reach out to [Xio-Cloud](https://github.com/Xio-Cloud).
