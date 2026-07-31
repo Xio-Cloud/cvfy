@@ -4,6 +4,12 @@ import en from './i18n/locales/en.json'
 export default defineNuxtConfig({
   devtools: { enabled: false },
 
+  nitro: {
+    prerender: {
+      concurrency: 2,
+    },
+  },
+
   site: {
     url:
       // eslint-disable-next-line node/prefer-global/process
