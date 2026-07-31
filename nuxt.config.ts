@@ -1,5 +1,11 @@
 import { defineNuxtConfig } from 'nuxt/config'
+import sharp from 'sharp'
 import en from './i18n/locales/en.json'
+
+try {
+  sharp.cache(false)
+}
+catch {}
 
 export default defineNuxtConfig({
   devtools: { enabled: false },
