@@ -50,7 +50,12 @@ export default defineNuxtConfig({
     autoImport: true,
   },
 
+  experimental: {
+    payloadExtraction: false,
+  },
+
   app: {
+    buildAssetsDir: 'nuxt_assets',
     // Global page headers (https://go.nuxtjs.dev/config-head)
     head: {
       meta: [
@@ -90,6 +95,9 @@ export default defineNuxtConfig({
   },
 
   fonts: {
+    assets: {
+      prefix: '/fonts/',
+    },
     defaults: {
       weights: [300, 400, 700],
     },

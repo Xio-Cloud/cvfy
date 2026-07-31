@@ -30,8 +30,8 @@ jobs:
           npm run generate || true
           if [ -f .output/public/index.html ]; then
             echo "Static generation succeeded!"
-            mkdir -p dist
-            cp -r .output/public/* dist/
+            rm -rf dist
+            cp -r .output/public dist
           else
             echo "Static generation failed!"
             exit 1
