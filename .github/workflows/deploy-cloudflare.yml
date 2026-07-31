@@ -33,9 +33,9 @@ jobs:
           npm run generate || true
           rm -rf dist
           mkdir -p dist
-          cp -r .output/public/* dist/ 2>/dev/null || true
           cp -r .nuxt/dist/client/* dist/ 2>/dev/null || true
           cp -r public/* dist/ 2>/dev/null || true
+          cp -r .output/public/* dist/ 2>/dev/null || true
           if [ ! -f dist/index.html ]; then
             echo "Error: Static site build failed - dist/index.html not generated!"
             exit 1

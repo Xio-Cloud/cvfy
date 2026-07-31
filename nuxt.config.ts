@@ -54,6 +54,11 @@ export default defineNuxtConfig({
 
   experimental: {
     payloadExtraction: false,
+    appManifest: false,
+  },
+
+  image: {
+    provider: 'none',
   },
 
   app: {
@@ -98,7 +103,7 @@ export default defineNuxtConfig({
 
   fonts: {
     assets: {
-      prefix: '/fonts/',
+      prefix: '/nuxt_assets/fonts/',
     },
     defaults: {
       weights: [300, 400, 700],
