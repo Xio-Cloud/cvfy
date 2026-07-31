@@ -227,8 +227,23 @@ export function useCvState() {
     ]
   }
 
+  function patchDates(formSettings: Cv) {
+    for (const key in SectionNameList) {
+      const section = key as SectionName
+      for (const e of formSettings[section]) {
+        if (e.from && !(e.from instanceof Date)) {
+          e.from = new Date(e.from)
+        }
+        if (e.to && !(e.to instanceof Date)) {
+          e.to = new Date(e.to)
+        }
+      }
+    }
+  }
+
   function normalizeFormSettings(formSettings: Cv) {
     patchId(formSettings)
+    patchDates(formSettings)
     patchDisplayDate(formSettings)
     patchLegacySummaryFormat(formSettings)
     patchDisplaySettings(formSettings)

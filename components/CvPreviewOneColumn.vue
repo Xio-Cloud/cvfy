@@ -1,16 +1,23 @@
 <script lang="ts" setup>
-import { CV_PARTS, type CvPart } from '~/types/cvfy'
+import type { Component } from 'vue'
+import CvPreviewAbout from '~/components/CvPreviewAbout.vue'
+import CvPreviewEducation from '~/components/CvPreviewEducation.vue'
+import CvPreviewExperience from '~/components/CvPreviewExperience.vue'
+import CvPreviewProjects from '~/components/CvPreviewProjects.vue'
+import CvPreviewSkills from '~/components/CvPreviewSkills.vue'
+import CvPreviewSocial from '~/components/CvPreviewSocial.vue'
 import { useCvState } from '~/data/useCvState'
+import { CV_PARTS, type CvPart } from '~/types/cvfy'
 
 const { formSettings } = useCvState()
 
-const previewSectionMap: Record<CvPart, string> = {
-  about: 'CvPreviewAbout',
-  skills: 'CvPreviewSkills',
-  social: 'CvPreviewSocial',
-  work: 'CvPreviewExperience',
-  education: 'CvPreviewEducation',
-  projects: 'CvPreviewProjects',
+const previewSectionMap: Record<CvPart, Component> = {
+  about: CvPreviewAbout,
+  skills: CvPreviewSkills,
+  social: CvPreviewSocial,
+  work: CvPreviewExperience,
+  education: CvPreviewEducation,
+  projects: CvPreviewProjects,
 }
 
 function shouldDisplaySection(section: CvPart) {
