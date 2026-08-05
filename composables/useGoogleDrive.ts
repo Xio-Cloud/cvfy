@@ -47,6 +47,16 @@ export function useGoogleDrive() {
       driveState.apiKey = localStorage.getItem('gdrive_api_key') || defaultApiKey
       driveState.activeFileId = localStorage.getItem('gdrive_active_file_id') || ''
       driveState.activeFileName = localStorage.getItem('gdrive_active_file_name') || ''
+
+      const token = localStorage.getItem('gdrive_access_token') || ''
+      const expiresAt = Number.parseInt(localStorage.getItem('gdrive_token_expires_at') || '0', 10)
+      if (token && Date.now() < expiresAt) {
+        driveState.accessToken = token
+      }
+      else {
+        localStorage.removeItem('gdrive_access_token')
+        localStorage.removeItem('gdrive_token_expires_at')
+      }
     }
     else {
       driveState.clientId = defaultClientId
@@ -141,12 +151,20 @@ export function useGoogleDrive() {
             reject(new Error(response.error))
             return
           }
+          const expiresInSeconds = response.expires_in || 3600
+          const expiresAt = Date.now() + expiresInSeconds * 1000 - 60000 // 1 minute safety margin
           driveState.accessToken = response.access_token
+
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('gdrive_access_token', response.access_token)
+            localStorage.setItem('gdrive_token_expires_at', expiresAt.toString())
+          }
+
           resolve(response.access_token)
         },
       })
 
-      tokenClient.requestAccessToken({ prompt: 'consent' })
+      tokenClient.requestAccessToken({ prompt: '' })
     })
   }
 
@@ -164,7 +182,7 @@ export function useGoogleDrive() {
 
   async function getOrCreateAppFolder(token: string): Promise<string | null> {
     try {
-      // 1. Search for existing folder named "CvFy"
+      // 1. Search for existing folder named "CvXio"
       const searchUrl = `https://www.googleapis.com/drive/v3/files?q=name = '${FOLDER_NAME}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false&fields=files(id, name)`
       const searchRes = await fetch(searchUrl, {
         headers: { Authorization: `Bearer ${token}` },
@@ -375,6 +393,8 @@ export function useGoogleDrive() {
     driveState.activeFileName = ''
     driveState.isDirty = false
     if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('gdrive_access_token')
+      localStorage.removeItem('gdrive_token_expires_at')
       localStorage.removeItem('gdrive_active_file_id')
       localStorage.removeItem('gdrive_active_file_name')
     }
