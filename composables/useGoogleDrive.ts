@@ -37,7 +37,7 @@ export function useGoogleDrive() {
 
   function loadSavedCredentials() {
     const config = useRuntimeConfig()
-    const defaultClientId = (config.public?.googleClientId as string) || '276683292647-p2ftu0lnt334848mun93kjohkhl4lfuu.apps.googleusercontent.com'
+    const defaultClientId = (config.public?.googleClientId as string) || ''
     const defaultApiKey = (config.public?.googleApiKey as string) || ''
 
     if (typeof localStorage !== 'undefined') {
