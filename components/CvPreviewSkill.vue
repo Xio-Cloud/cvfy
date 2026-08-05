@@ -1,6 +1,6 @@
 <script lang="ts" setup generic="T extends boolean">
 import { useCvState } from '~/data/useCvState'
-import type { LanguagesSkill } from '~/types/cvfy'
+import type { LanguagesSkill } from '~/types/cvxio'
 
 defineProps<{
   display?: boolean

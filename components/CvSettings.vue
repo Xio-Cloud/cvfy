@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CV_PARTS, type CvPart, SectionNameList } from '~/types/cvfy'
+import { CV_PARTS, type CvPart, SectionNameList } from '~/types/cvxio'
 import { useCvState } from '~/data/useCvState'
 
 const {

@@ -7,7 +7,7 @@ import CvPreviewProjects from '~/components/CvPreviewProjects.vue'
 import CvPreviewSkills from '~/components/CvPreviewSkills.vue'
 import CvPreviewSocial from '~/components/CvPreviewSocial.vue'
 import { useCvState } from '~/data/useCvState'
-import { CV_PARTS, type CvPart } from '~/types/cvfy'
+import { CV_PARTS, type CvPart } from '~/types/cvxio'
 
 const { formSettings } = useCvState()
 

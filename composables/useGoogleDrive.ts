@@ -3,7 +3,7 @@ import { useCvState } from '~/data/useCvState'
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.file'
 const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
-const FOLDER_NAME = 'CvFy'
+const FOLDER_NAME = 'CvXio'
 
 const driveState = reactive({
   accessToken: '' as string,

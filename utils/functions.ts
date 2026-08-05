@@ -1,4 +1,4 @@
-import type { CvEvent } from '~/types/cvfy'
+import type { CvEvent } from '~/types/cvxio'
 
 export function orderEvents(arr: CvEvent[]): CvEvent[] {
   return [...arr].sort(

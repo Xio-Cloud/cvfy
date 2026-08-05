@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useCvState } from '~/data/useCvState'
-import { LEVELS, type Level } from '~/types/cvfy'
+import { LEVELS, type Level } from '~/types/cvxio'
 
 const tagInputLang = ref({ lang: '', level: '' as Level })
 

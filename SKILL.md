@@ -1,17 +1,17 @@
 ---
-name: cvfy-json-builder
-description: Universal AI agent skill for converting Markdown CVs, resumes, or unformatted text into valid CvFy JSON files suitable for direct import and visualization.
+name: cvxio-json-builder
+description: Universal AI agent skill for converting Markdown CVs, resumes, or unformatted text into valid CvXio JSON files suitable for direct import and visualization.
 ---
 
-# CvFy JSON Builder Skill
+# CvXio JSON Builder Skill
 
-This skill instructions file enables any AI agent (Claude, ChatGPT, Gemini, Cursor, Windsurf, Antigravity) to convert Markdown CVs or raw resume text into valid **CvFy JSON** format for live visualization on **[cv.xio.vn/create](http://cv.xio.vn/create)**.
+This skill instructions file enables any AI agent (Claude, ChatGPT, Gemini, Cursor, Windsurf, Antigravity) to convert Markdown CVs or raw resume text into valid **CvXio JSON** format for live visualization on **[cv.xio.vn/create](http://cv.xio.vn/create)**.
 
 ---
 
 ## 1. Skill Purpose & Execution
 
-When instructed to generate or convert a CV into CvFy JSON:
+When instructed to generate or convert a CV into CvXio JSON:
 1. Parse the candidate's personal information, summary, work experience, education, projects, skills, and languages.
 2. Structure the data into the exact `Cv` schema wrapped inside a top-level `"formSettings"` JSON key.
 3. Ensure all dates are formatted as valid ISO 8601 strings (`"YYYY-MM-DDTHH:mm:ss.sssZ"`).

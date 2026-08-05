@@ -1,6 +1,6 @@
-# Step-by-Step Guide: Creating Google OAuth Client ID & API Key for CvFy
+# Step-by-Step Guide: Creating Google OAuth Client ID & API Key for CvXio
 
-Follow this guide to create a Google OAuth 2.0 Client ID and API Key in the **Google Cloud Console** for your CvFy deployment (`http://cv.xio.vn` or local development).
+Follow this guide to create a Google OAuth 2.0 Client ID and API Key in the **Google Cloud Console** for your CvXio deployment (`http://cv.xio.vn` or local development).
 
 ---
 
@@ -9,7 +9,7 @@ Follow this guide to create a Google OAuth 2.0 Client ID and API Key in the **Go
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
 2. Click the project selector dropdown at the top navigation bar.
 3. Click **New Project**.
-4. Enter a project name (e.g., `CvFy-Drive-Sync`) and click **Create**.
+4. Enter a project name (e.g., `CvXio-Drive-Sync`) and click **Create**.
 
 ---
 
@@ -26,7 +26,7 @@ Follow this guide to create a Google OAuth 2.0 Client ID and API Key in the **Go
 1. In the left sidebar, go to **APIs & Services** > **OAuth consent screen**.
 2. Choose **User Type**: `External` and click **Create**.
 3. Fill in the required fields:
-   - **App name**: `CvFy`
+   - **App name**: `CvXio`
    - **User support email**: Your email address
    - **Developer contact information**: Your email address
 4. Click **Save and Continue**.
@@ -42,7 +42,7 @@ Follow this guide to create a Google OAuth 2.0 Client ID and API Key in the **Go
 1. In the left sidebar, go to **APIs & Services** > **Credentials**.
 2. Click **+ Create Credentials** at the top and select **OAuth client ID**.
 3. Set **Application type** to **Web application**.
-4. Name: `CvFy Web Client`.
+4. Name: `CvXio Web Client`.
 5. Under **Authorized JavaScript origins**, click **+ Add URI** and add:
    - `http://cv.xio.vn`
    - `http://localhost:3000` (for local development)

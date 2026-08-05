@@ -1,6 +1,6 @@
-# Guide: How to Convert a Markdown CV to CvFy JSON
+# Guide: How to Convert a Markdown CV to CvXio JSON
 
-This guide explains how to convert any standard Markdown-formatted CV into a valid `.json` file compatible with **CvFy** (which can be imported directly at [cv.xio.vn/create](http://cv.xio.vn/create)).
+This guide explains how to convert any standard Markdown-formatted CV into a valid `.json` file compatible with **CvXio** (which can be imported directly at [cv.xio.vn/create](http://cv.xio.vn/create)).
 
 ---
 

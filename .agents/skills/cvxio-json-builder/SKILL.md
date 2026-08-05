@@ -1,11 +1,11 @@
 ---
-name: cvfy-json-builder
-description: Instructions and schema specifications for AI agents to convert Markdown CVs or raw resume text into valid CvFy JSON format suitable for direct import. Use when asked to convert resumes into CvFy JSON or build CvFy-compatible JSON files.
+name: cvxio-json-builder
+description: Instructions and schema specifications for AI agents to convert Markdown CVs or raw resume text into valid CvXio JSON format suitable for direct import. Use when asked to convert resumes into CvXio JSON or build CvXio-compatible JSON files.
 ---
 
-# CvFy JSON Builder Skill
+# CvXio JSON Builder Skill
 
-This skill guides AI agents on how to parse Markdown CVs, resumes, or unformatted candidate profiles into a fully valid `CvFy` JSON structure that can be imported directly into the application at `/create` via **Upload CV settings (JSON)**.
+This skill guides AI agents on how to parse Markdown CVs, resumes, or unformatted candidate profiles into a fully valid `CvXio` JSON structure that can be imported directly into the application at `/create` via **Upload CV settings (JSON)**.
 
 ---
 
@@ -94,7 +94,7 @@ Always include these standard display toggles in `formSettings`:
 
 ## 3. Conversion Instructions for AI Agents
 
-When converting input text or Markdown to CvFy JSON:
+When converting input text or Markdown to CvXio JSON:
 
 1. **Date Parsing**:
    - Convert all dates to UTC ISO strings: `new Date("2020-01-01").toISOString()` -> `"2020-01-01T00:00:00.000Z"`.

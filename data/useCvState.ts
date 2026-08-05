@@ -12,7 +12,7 @@ import {
   type LanguagesSkill,
   type SectionName,
   SectionNameList,
-} from '~/types/cvfy'
+} from '~/types/cvxio'
 import { htmlSummaryToMarkdown } from '~/utils/markdown'
 
 const state = reactive({

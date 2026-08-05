@@ -1,6 +1,6 @@
-# AI Agent Prompt & Skill Guide for CvFy
+# AI Agent Prompt & Skill Guide for CvXio
 
-Use this document to instruct any AI agent (ChatGPT, Claude, Gemini, or custom LLMs) to convert any resume or Markdown CV into a valid **CvFy JSON** file, allowing you to instantly visualize and edit it on **[cv.xio.vn/create](http://cv.xio.vn/create)**.
+Use this document to instruct any AI agent (ChatGPT, Claude, Gemini, or custom LLMs) to convert any resume or Markdown CV into a valid **CvXio JSON** file, allowing you to instantly visualize and edit it on **[cv.xio.vn/create](http://cv.xio.vn/create)**.
 
 ---
 
@@ -9,7 +9,7 @@ Use this document to instruct any AI agent (ChatGPT, Claude, Gemini, or custom L
 Copy and paste the text block below into any AI chat (ChatGPT, Claude, Gemini, etc.) along with your raw resume or Markdown text:
 
 ```text
-You are an expert Resume Converter AI. Your task is to take my resume text provided below and convert it into a strictly valid CvFy JSON structure wrapped inside a top-level "formSettings" object.
+You are an expert Resume Converter AI. Your task is to take my resume text provided below and convert it into a strictly valid CvXio JSON structure wrapped inside a top-level "formSettings" object.
 
 Output ONLY valid, raw JSON (no explanations, no surrounding text outside the JSON code block).
 

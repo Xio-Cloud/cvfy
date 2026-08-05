@@ -1,4 +1,4 @@
-import { type Cv, LEVELS } from '~/types/cvfy'
+import { type Cv, LEVELS } from '~/types/cvxio'
 
 export const cvSettingTemplate: Cv = {
   layout: 'two-column',

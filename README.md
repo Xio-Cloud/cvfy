@@ -1,10 +1,10 @@
-# CvFy
+# CvXio
 
 [![MadeWithVueJs.com shield](https://madewithvuejs.com/storage/repo-shields/3280-shield.svg)](https://madewithvuejs.com/p/cvfy/shield-link)
 
-![CvFy](/public/CvFy.png)
+![CvXio](/public/CvFy.png)
 
-CvFy is an open-sourced multilingual app that makes CV creation faster and easier.
+CvXio is an open-sourced multilingual app that makes CV creation faster and easier.
 
 > [!NOTE]
 > PDF creation is client-side only, so results may differ among browsers.
@@ -14,6 +14,7 @@ Demo: http://cv.xio.vn/
 ## Features
 - Multilingual
 - Custom themes (layout and color)
+- Google Drive Integration (Load, Edit & Auto-Save)
 - No login required
 - Responsive design
 - Accessible

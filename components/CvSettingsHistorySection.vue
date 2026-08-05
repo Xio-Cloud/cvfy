@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useCvState } from '~/data/useCvState'
-import type { SectionName, SectionNameList } from '~/types/cvfy'
+import type { SectionName, SectionNameList } from '~/types/cvxio'
 
 defineProps<
   {

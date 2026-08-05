@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CvEvent, SectionName } from '~/types/cvfy'
+import type { CvEvent, SectionName } from '~/types/cvxio'
 import { useCvState } from '~/data/useCvState'
 
 const { sectionName, entries = [] } = defineProps<{

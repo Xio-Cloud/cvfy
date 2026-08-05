@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useCvState } from '~/data/useCvState'
-import type { DefaultSkill, LanguagesSkill, Level, Skill, SkillType } from '~/types/cvfy'
+import type { DefaultSkill, LanguagesSkill, Level, Skill, SkillType } from '~/types/cvxio'
 
 const props = defineProps<{
   tagListName: SkillType

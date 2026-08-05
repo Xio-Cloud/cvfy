@@ -208,8 +208,8 @@ export default defineNuxtConfig({
       config: true,
     },
     manifest: {
-      name: 'Cvfy',
-      short_name: 'CvFy',
+      name: 'CvXio',
+      short_name: 'CvXio',
       lang: 'en',
       scope: '/',
       display: 'standalone',

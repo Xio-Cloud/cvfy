@@ -1,6 +1,6 @@
-# CvFy Contribution Guidelines
+# CvXio Contribution Guidelines
 
-Thank you for considering contributing to CvFy! We welcome all contributions that help improve the project and make it better for everyone. Please take a moment to review these guidelines before getting started.
+Thank you for considering contributing to CvXio! We welcome all contributions that help improve the project and make it better for everyone. Please take a moment to review these guidelines before getting started.
 
 # Intro
 
@@ -20,11 +20,11 @@ We use [GitHub Flow](https://guides.github.com/introduction/flow/) for managing 
 
 # Getting started
 
-To contribute to CvFy, please follow these steps:
+To contribute to CvXio, please follow these steps:
 
-1. Fork the CvFy repository to your GitHub account.
+1. Fork the CvXio repository to your GitHub account.
 2. Clone your forked repository to your local machine:
-   `git clone https://github.com/<your-username>/cvfy.git`
+   `git clone https://github.com/<your-username>/cvxio.git`
 3. Install the project dependencies as described in the project's [README](README.md) file.
 
 # Submitting a Pull Request (PR)
