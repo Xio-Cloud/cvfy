@@ -1,0 +1,103 @@
+{
+  "formSettings": {
+    "layout": "two-column",
+    "profileImageDataUri": null,
+    "name": "Jane",
+    "lastName": "Doe",
+    "jobTitle": "Senior Software Engineer",
+    "email": "jane.doe@example.com",
+    "location": "San Francisco, CA",
+    "phoneNumber": "555-019-2834",
+    "aboutme": "Experienced Senior Software Engineer with 8+ years of expertise in building scalable cloud services, domain-driven microservices, and modern web applications. Passionate about system performance, clean architecture, and mentoring engineering teams.",
+    "jobSkills": [
+      "Node.js",
+      "TypeScript",
+      "Python",
+      "React",
+      "Vue.js",
+      "PostgreSQL",
+      "Redis",
+      "Docker",
+      "AWS",
+      "GraphQL"
+    ],
+    "displayJobSkills": true,
+    "softSkills": [
+      "System Architecture",
+      "Technical Leadership",
+      "Performance Tuning",
+      "Agile Operations"
+    ],
+    "displaySoftSkills": true,
+    "languages": [
+      {
+        "lang": "English",
+        "level": "native-bilingual"
+      },
+      {
+        "lang": "Spanish",
+        "level": "professional-working"
+      }
+    ],
+    "displayLanguages": true,
+    "interests": [
+      "Cloud Infrastructure",
+      "System Performance"
+    ],
+    "displayInterests": true,
+    "linkedin": "janedoe",
+    "github": "janedoe",
+    "twitter": "",
+    "website": "example.com",
+    "work": [
+      {
+        "id": "work-1",
+        "title": "Senior Software Engineer",
+        "location": "TechCorp",
+        "from": "2020-01-01T00:00:00.000Z",
+        "to": "2026-08-01T00:00:00.000Z",
+        "current": true,
+        "displayDate": true,
+        "summary": "Leading developer for core e-commerce backend services and infrastructure.\n\n**Platform: Core Checkout & Payment Pipeline**\n*Stack: Node.js, TypeScript, PostgreSQL, Redis, AWS (ECS, SQS).*\n- Architected and deployed microservices processing over 100k daily transactions.\n- Reduced P99 API latency by 40% through Redis caching and query optimization.\n- Mentored junior and mid-level engineers in TypeScript and system design best practices."
+      },
+      {
+        "id": "work-2",
+        "title": "Software Engineer",
+        "location": "DataSystems",
+        "from": "2017-01-01T00:00:00.000Z",
+        "to": "2020-01-01T00:00:00.000Z",
+        "current": false,
+        "displayDate": true,
+        "summary": "**Platform: Data Analytics Dashboard**\n*Stack: Python, Django, React, PostgreSQL, Docker.*\n- Built real-time analytics dashboards for business intelligence monitoring.\n- Integrated third-party REST APIs and automated ETL data pipelines."
+      }
+    ],
+    "education": [
+      {
+        "id": "edu-1",
+        "title": "Bachelor of Science in Computer Science",
+        "location": "State University",
+        "from": "2013-09-01T00:00:00.000Z",
+        "to": "2017-06-01T00:00:00.000Z",
+        "current": false,
+        "displayDate": true,
+        "summary": ""
+      }
+    ],
+    "projects": [],
+    "displaySocial": true,
+    "displayAbout": true,
+    "displaySkills": true,
+    "displayWork": true,
+    "displayEducation": true,
+    "displayProjects": false,
+    "sectionOrder": [
+      "about",
+      "skills",
+      "work",
+      "education",
+      "projects",
+      "social"
+    ],
+    "activeColor": "#5B21B6"
+  }
+}
