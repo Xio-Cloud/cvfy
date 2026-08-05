@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useGoogleDrive } from '~/composables/useGoogleDrive'
 
-const { driveState, openPicker, saveToDrive, setCredentials, checkDriveUrlParams, signOutDrive } = useGoogleDrive()
+const { driveState, openPicker, saveToDrive, setCredentials, checkDriveUrlParams, signOutDrive, authorizeDrive } = useGoogleDrive()
 const route = useRoute()
 
 const showConfigModal = ref(false)
@@ -19,6 +19,14 @@ onMounted(() => {
 function saveConfig() {
   setCredentials(inputClientId.value, inputApiKey.value)
   showConfigModal.value = false
+}
+
+function handleAuthorize() {
+  if (!driveState.clientId) {
+    showConfigModal.value = true
+    return
+  }
+  authorizeDrive()
 }
 
 function handleOpenDrive() {
@@ -60,7 +68,20 @@ function handleSaveDrive(asNewFile = false) {
     </legend>
 
     <div class="flex flex-col gap-2 w-full">
-      <!-- draw.io style Status Banner -->
+      <!-- Connect Banner when not authenticated -->
+      <div
+        v-if="!driveState.accessToken && !driveState.activeFileName"
+        class="text-xs p-2 rounded bg-blue-50 border border-blue-200 text-blue-900 flex items-center justify-between"
+      >
+        <span class="text-[11px] font-medium text-blue-800">Sign in to sync with your Google Drive</span>
+        <button
+          type="button"
+          class="text-[11px] font-bold bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded transition-colors shrink-0"
+          @click="handleAuthorize"
+        >
+          Sign in
+        </button>
+      </div>
       <div
         v-if="driveState.activeFileName"
         class="text-xs p-2 rounded flex items-center justify-between transition-colors gap-2"

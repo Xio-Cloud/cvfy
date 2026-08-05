@@ -148,11 +148,16 @@ export function useGoogleDrive() {
     })
   }
 
+  async function authorizeDrive(): Promise<string> {
+    await initGoogleDrive()
+    return await requestAccessToken()
+  }
+
   async function ensureAccessToken(): Promise<string> {
     if (driveState.accessToken) {
       return driveState.accessToken
     }
-    return await requestAccessToken()
+    return await authorizeDrive()
   }
 
   async function openPicker(): Promise<void> {
@@ -333,6 +338,7 @@ export function useGoogleDrive() {
     openPicker,
     loadFileFromDrive,
     saveToDrive,
+    authorizeDrive,
     checkDriveUrlParams,
     signOutDrive,
   }
