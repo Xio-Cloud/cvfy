@@ -73,7 +73,13 @@
   "hero-title-3": "and own your data",
   "get-started": "Get started",
   "create-cv": "Create CV",
-  "native-bilingual": "母语 / 双语",
-  "show-date": "Show date",
-  "hide-date": "Hide date"
+  "native-bilingual": "母语/双语",
+  "show-date": "显示日期",
+  "hide-date": "隐藏日期",
+  "google-drive": "Google Drive",
+  "open-from-drive": "从 Drive 打开",
+  "save-to-drive": "保存到 Drive",
+  "drive-connected": "已连接",
+  "drive-saved": "已保存",
+  "drive-config": "Drive 设置"
 }

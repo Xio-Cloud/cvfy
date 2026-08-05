@@ -505,6 +505,10 @@ function getCurrentColor(colorValue: string): {
       </fieldset>
       <!-- SECTION ORDER -->
 
+      <!-- GOOGLE DRIVE SYNC -->
+      <CvGoogleDriveSync />
+      <!-- GOOGLE DRIVE SYNC -->
+
       <!-- CTA -->
       <div class="form__section flex flex-col p-6 gap-3">
         <button

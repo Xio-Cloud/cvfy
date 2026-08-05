@@ -73,7 +73,13 @@
   "hero-title-3": "and own your data",
   "get-started": "Get started",
   "create-cv": "Create CV",
-  "native-bilingual": "Native/Bilingual",
-  "show-date": "Show date",
-  "hide-date": "Hide date"
+  "native-bilingual": "Bahasa Ibu/Dwibahasa",
+  "show-date": "Tampilkan tanggal",
+  "hide-date": "Sembunyikan tanggal",
+  "google-drive": "Google Drive",
+  "open-from-drive": "Buka dari Drive",
+  "save-to-drive": "Simpan ke Drive",
+  "drive-connected": "Terhubung",
+  "drive-saved": "Tersimpan",
+  "drive-config": "Pengaturan Drive"
 }

@@ -16,7 +16,7 @@ All CV data MUST be wrapped inside a top-level `"formSettings"` key:
 ```json
 {
   "formSettings": {
-    ...
+    "name": "Jane"
   }
 }
 ```
@@ -58,14 +58,14 @@ Arrays containing experience, education, or project objects with the following s
 
 ```typescript
 interface CvEvent {
-  id: string              // Unique ID (e.g., "work-1", "edu-1")
-  title: string           // Role title, degree name, or project title
-  location: string        // Company name, university name, or project link
-  from: string            // ISO Date string ("YYYY-MM-DDTHH:mm:ss.sssZ")
-  to: string              // ISO Date string ("YYYY-MM-DDTHH:mm:ss.sssZ")
-  current: boolean        // true if currently active/ongoing
-  displayDate: boolean    // true to show dates on CV (default: true)
-  summary: string         // Markdown formatted description and bullet points
+  id: string // Unique ID (e.g., "work-1", "edu-1")
+  title: string // Role title, degree name, or project title
+  location: string // Company name, university name, or project link
+  from: string // ISO Date string ("YYYY-MM-DDTHH:mm:ss.sssZ")
+  to: string // ISO Date string ("YYYY-MM-DDTHH:mm:ss.sssZ")
+  current: boolean // true if currently active/ongoing
+  displayDate: boolean // true to show dates on CV (default: true)
+  summary: string // Markdown formatted description and bullet points
 }
 ```
 

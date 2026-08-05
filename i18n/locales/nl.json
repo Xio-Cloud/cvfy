@@ -73,7 +73,13 @@
   "hero-title-3": "en behoud je gegevens",
   "get-started": "Aan de slag",
   "create-cv": "CV maken",
-  "native-bilingual": "Moedertaal / Tweetalig",
-  "show-date": "Toon datum",
-  "hide-date": "Verberg datum"
+  "native-bilingual": "Moedertaal/Twee-talig",
+  "show-date": "Datum tonen",
+  "hide-date": "Datum verbergen",
+  "google-drive": "Google Drive",
+  "open-from-drive": "Openen vanuit Drive",
+  "save-to-drive": "Opslaan in Drive",
+  "drive-connected": "Verbonden",
+  "drive-saved": "Opgeslagen",
+  "drive-config": "Drive-instellingen"
 }

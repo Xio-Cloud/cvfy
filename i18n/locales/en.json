@@ -75,5 +75,11 @@
   "create-cv": "Create CV",
   "native-bilingual": "Native/Bilingual",
   "show-date": "Show date",
-  "hide-date": "Hide date"
+  "hide-date": "Hide date",
+  "google-drive": "Google Drive",
+  "open-from-drive": "Open from Drive",
+  "save-to-drive": "Save to Drive",
+  "drive-connected": "Connected",
+  "drive-saved": "Saved",
+  "drive-config": "Drive Settings"
 }

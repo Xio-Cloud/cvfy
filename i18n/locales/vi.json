@@ -75,5 +75,11 @@
   "create-cv": "Tạo CV",
   "native-bilingual": "Bản ngữ / Song ngữ",
   "show-date": "Hiện ngày",
-  "hide-date": "Ẩn ngày"
+  "hide-date": "Ẩn ngày",
+  "google-drive": "Google Drive",
+  "open-from-drive": "Mở từ Drive",
+  "save-to-drive": "Lưu vào Drive",
+  "drive-connected": "Đã kết nối",
+  "drive-saved": "Đã lưu",
+  "drive-config": "Cài đặt Drive"
 }

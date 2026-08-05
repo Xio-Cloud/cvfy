@@ -103,15 +103,22 @@ export function useCvState() {
     ].filter(entry => entry.id !== e.entry.id)
   }
 
+  function uploadCVData(data: any): void {
+    if (!data)
+      return
+    const formSettingsData = data.formSettings || data
+    state.formSettings = {
+      ...cvSettingsEmptyTemplate,
+      ...formSettingsData,
+    }
+    normalizeFormSettings(state.formSettings)
+  }
+
   function uploadCV(e: any): void {
     const fr = new FileReader()
     fr.onload = (e: any) => {
       const data = JSON.parse(e.target.result)
-      state.formSettings = {
-        ...cvSettingsEmptyTemplate,
-        ...data.formSettings,
-      }
-      normalizeFormSettings(state.formSettings)
+      uploadCVData(data)
     }
     fr.readAsText(e.target.files[0])
   }
@@ -258,6 +265,7 @@ export function useCvState() {
     addEntry,
     removeEntry,
     uploadCV,
+    uploadCVData,
     resetForm,
     clearForm,
     changeDisplaySection,

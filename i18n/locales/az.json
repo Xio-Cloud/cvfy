@@ -75,5 +75,11 @@
   "create-cv": "CV yarat",
   "native-bilingual": "Ana dil / İki dilli",
   "show-date": "Tarixi göstər",
-  "hide-date": "Tarixi gizlət"
+  "hide-date": "Tarixi gizlət",
+  "google-drive": "Google Drive",
+  "open-from-drive": "Drive-dan aç",
+  "save-to-drive": "Drive-da saxla",
+  "drive-connected": "Qoşuldu",
+  "drive-saved": "Yadda saxlanıldı",
+  "drive-config": "Drive parametrləri"
 }

@@ -73,7 +73,13 @@
   "hero-title-3": "and own your data",
   "get-started": "Get started",
   "create-cv": "Create CV",
-  "native-bilingual": "لغة أصلية/ثنائية اللغة",
-  "show-date": "Show date",
-  "hide-date": "Hide date"
+  "native-bilingual": "اللغة الأم / ثنائي اللغة",
+  "show-date": "إظهار التاريخ",
+  "hide-date": "إخفاء التاريخ",
+  "google-drive": "Google Drive",
+  "open-from-drive": "فتح من Drive",
+  "save-to-drive": "حفظ في Drive",
+  "drive-connected": "متصل",
+  "drive-saved": "تم الحفظ",
+  "drive-config": "إعدادات Drive"
 }
