@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import { useCvState } from '~/data/useCvState'
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.file'
@@ -13,6 +13,7 @@ const driveState = reactive({
   isAuthorizing: false,
   isSaving: false,
   isLoadingFile: false,
+  isDirty: false,
   lastSavedAt: null as Date | null,
   clientId: '' as string,
   apiKey: '' as string,
@@ -22,6 +23,17 @@ const driveState = reactive({
 export function useGoogleDrive() {
   const { formSettings, uploadCVData } = useCvState()
   let tokenClient: any = null
+
+  // Watch formSettings changes to track unsaved status
+  watch(
+    formSettings,
+    () => {
+      if (driveState.activeFileId) {
+        driveState.isDirty = true
+      }
+    },
+    { deep: true },
+  )
 
   function loadSavedCredentials() {
     if (typeof localStorage !== 'undefined') {
@@ -195,7 +207,8 @@ export function useGoogleDrive() {
       if (data && uploadCVData) {
         uploadCVData(data)
         driveState.activeFileId = fileId
-        driveState.activeFileName = fileName || fileDocName(fileId)
+        driveState.activeFileName = fileName || `CV_${formSettings.value.name}_${formSettings.value.lastName}.json`
+        driveState.isDirty = false
         if (typeof localStorage !== 'undefined') {
           localStorage.setItem('gdrive_active_file_id', driveState.activeFileId)
           localStorage.setItem('gdrive_active_file_name', driveState.activeFileName)
@@ -210,11 +223,7 @@ export function useGoogleDrive() {
     }
   }
 
-  function fileDocName(_fileId: string): string {
-    return `CV_${formSettings.value.name}_${formSettings.value.lastName}.json`
-  }
-
-  async function saveToDrive(): Promise<void> {
+  async function saveToDrive(asNewFile = false): Promise<void> {
     driveState.isSaving = true
     driveState.error = ''
     try {
@@ -237,7 +246,7 @@ export function useGoogleDrive() {
       let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart'
       let method = 'POST'
 
-      if (driveState.activeFileId) {
+      if (driveState.activeFileId && !asNewFile) {
         url = `https://www.googleapis.com/upload/drive/v3/files/${driveState.activeFileId}?uploadType=multipart`
         method = 'PATCH'
       }
@@ -258,6 +267,7 @@ export function useGoogleDrive() {
       driveState.activeFileId = result.id
       driveState.activeFileName = fileName
       driveState.lastSavedAt = new Date()
+      driveState.isDirty = false
 
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('gdrive_active_file_id', result.id)
@@ -272,6 +282,24 @@ export function useGoogleDrive() {
     }
   }
 
+  // Handle Google Drive "Open with..." URL parameters (draw.io style ?state=... or ?fileId=...)
+  async function checkDriveUrlParams(routeQuery: any) {
+    if (routeQuery.fileId) {
+      await loadFileFromDrive(routeQuery.fileId)
+      return
+    }
+
+    if (routeQuery.state) {
+      try {
+        const stateObj = JSON.parse(routeQuery.state)
+        if (stateObj.action === 'open' && Array.isArray(stateObj.ids) && stateObj.ids.length > 0) {
+          await loadFileFromDrive(stateObj.ids[0])
+        }
+      }
+      catch {}
+    }
+  }
+
   return {
     driveState,
     initGoogleDrive,
@@ -280,5 +308,6 @@ export function useGoogleDrive() {
     openPicker,
     loadFileFromDrive,
     saveToDrive,
+    checkDriveUrlParams,
   }
 }

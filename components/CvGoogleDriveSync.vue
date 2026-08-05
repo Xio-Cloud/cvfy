@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useGoogleDrive } from '~/composables/useGoogleDrive'
 
-const { driveState, openPicker, saveToDrive, setCredentials } = useGoogleDrive()
+const { driveState, openPicker, saveToDrive, setCredentials, checkDriveUrlParams } = useGoogleDrive()
+const route = useRoute()
 
 const showConfigModal = ref(false)
 const inputClientId = ref(driveState.clientId)
 const inputApiKey = ref(driveState.apiKey)
+
+onMounted(() => {
+  if (route.query.fileId || route.query.state) {
+    checkDriveUrlParams(route.query)
+  }
+})
 
 function saveConfig() {
   setCredentials(inputClientId.value, inputApiKey.value)
@@ -21,12 +29,12 @@ function handleOpenDrive() {
   openPicker()
 }
 
-function handleSaveDrive() {
+function handleSaveDrive(asNewFile = false) {
   if (!driveState.clientId) {
     showConfigModal.value = true
     return
   }
-  saveToDrive()
+  saveToDrive(asNewFile)
 }
 </script>
 
@@ -52,40 +60,48 @@ function handleSaveDrive() {
     </legend>
 
     <div class="flex flex-col gap-2 w-full">
-      <!-- Status Banner -->
+      <!-- draw.io style Status Banner -->
       <div
         v-if="driveState.activeFileName"
-        class="text-xs p-2 bg-blue-50 border border-blue-200 rounded text-blue-800 flex items-center justify-between"
+        class="text-xs p-2 rounded flex items-center justify-between transition-colors"
+        :class="driveState.isDirty ? 'bg-amber-50 border border-amber-200 text-amber-900' : 'bg-emerald-50 border border-emerald-200 text-emerald-900'"
       >
-        <span class="truncate">📄 {{ driveState.activeFileName }}</span>
-        <span
-          v-if="driveState.lastSavedAt"
-          class="text-[10px] text-blue-600 shrink-0"
-        >
-          {{ $t("drive-saved") }}
+        <span class="truncate font-medium">📄 {{ driveState.activeFileName }}</span>
+        <span class="text-[10px] shrink-0 font-semibold px-1.5 py-0.5 rounded" :class="driveState.isDirty ? 'bg-amber-200 text-amber-900' : 'bg-emerald-200 text-emerald-900'">
+          {{ driveState.isDirty ? 'Unsaved' : 'Saved' }}
         </span>
       </div>
 
       <!-- Action Buttons -->
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-3 gap-1.5">
         <button
           type="button"
-          class="form__btn form__btn--ghost flex items-center justify-center gap-1 py-2 text-xs"
+          class="form__btn form__btn--ghost flex items-center justify-center gap-1 py-1.5 text-xs"
           :disabled="driveState.isLoadingFile"
           @click="handleOpenDrive"
         >
           <span>📁</span>
-          <span>{{ driveState.isLoadingFile ? '...' : $t("open-from-drive") }}</span>
+          <span>Open</span>
         </button>
 
         <button
           type="button"
-          class="form__btn flex items-center justify-center gap-1 py-2 text-xs"
+          class="form__btn flex items-center justify-center gap-1 py-1.5 text-xs"
           :disabled="driveState.isSaving"
-          @click="handleSaveDrive"
+          @click="handleSaveDrive(false)"
+        >
+          <span>💾</span>
+          <span>{{ driveState.isSaving ? '...' : 'Save' }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="form__btn form__btn--ghost flex items-center justify-center gap-1 py-1.5 text-xs"
+          :disabled="driveState.isSaving"
+          @click="handleSaveDrive(true)"
         >
           <span>☁️</span>
-          <span>{{ driveState.isSaving ? '...' : $t("save-to-drive") }}</span>
+          <span>Save As</span>
         </button>
       </div>
 
