@@ -314,7 +314,7 @@ export function useGoogleDrive() {
     }
   }
 
-  async function saveToDrive(asNewFile = false): Promise<void> {
+  async function saveToDrive(asNewFile = false, customFileName?: string): Promise<void> {
     driveState.isSaving = true
     driveState.error = ''
     try {
@@ -326,7 +326,14 @@ export function useGoogleDrive() {
         folderId = await getOrCreateAppFolder(token)
       }
 
-      const fileName = `CV_${formSettings.value.name || 'Untitled'}_${formSettings.value.lastName || 'CV'}.json`
+      let fileName = customFileName?.trim()
+      if (!fileName) {
+        fileName = `CV_${formSettings.value.name || 'Untitled'}_${formSettings.value.lastName || 'CV'}.json`
+      }
+      if (!fileName.endsWith('.json')) {
+        fileName += '.json'
+      }
+
       const jsonContent = JSON.stringify({ formSettings: formSettings.value }, null, 2)
       const blob = new Blob([jsonContent], { type: 'application/json' })
 

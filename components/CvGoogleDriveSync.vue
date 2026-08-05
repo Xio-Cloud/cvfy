@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useCvState } from '~/data/useCvState'
 import { useGoogleDrive } from '~/composables/useGoogleDrive'
 
 const { driveState, openPicker, saveToDrive, checkDriveUrlParams, signOutDrive, authorizeDrive } = useGoogleDrive()
+const { formSettings } = useCvState()
 const route = useRoute()
+
+const showSaveAsModal = ref(false)
+const saveAsFileName = ref('')
 
 onMounted(() => {
   if (route.query.fileId || route.query.state) {
@@ -21,7 +26,19 @@ function handleOpenDrive() {
 }
 
 function handleSaveDrive(asNewFile = false) {
-  saveToDrive(asNewFile)
+  if (asNewFile) {
+    const defaultName = driveState.activeFileName || `CV_${formSettings.value.name || 'Untitled'}_${formSettings.value.lastName || 'CV'}.json`
+    saveAsFileName.value = defaultName
+    showSaveAsModal.value = true
+  }
+  else {
+    saveToDrive(false)
+  }
+}
+
+function confirmSaveAs() {
+  saveToDrive(true, saveAsFileName.value)
+  showSaveAsModal.value = false
 }
 </script>
 
@@ -117,6 +134,50 @@ function handleSaveDrive(asNewFile = false) {
       >
         {{ driveState.error }}
       </p>
+    </div>
+
+    <!-- Save As File Name Prompt Modal -->
+    <div
+      v-if="showSaveAsModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+    >
+      <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
+        <h3 class="font-bold text-base mb-2">
+          Save As to Google Drive
+        </h3>
+        <p class="text-xs text-slate-600 mb-4">
+          Enter a custom file name to save a copy in your Google Drive's <span class="font-bold text-blue-600">CvXio</span> folder:
+        </p>
+
+        <div class="mb-4">
+          <label class="block text-xs font-bold mb-1">File Name</label>
+          <input
+            v-model="saveAsFileName"
+            type="text"
+            class="form__control text-xs w-full"
+            placeholder="CV_John_Doe.json"
+            @keyup.enter="confirmSaveAs"
+          >
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            class="form__btn form__btn--ghost text-xs px-3 py-1"
+            @click="showSaveAsModal = false"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="form__btn text-xs px-3 py-1"
+            :disabled="!saveAsFileName.trim() || driveState.isSaving"
+            @click="confirmSaveAs"
+          >
+            {{ driveState.isSaving ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </div>
     </div>
   </fieldset>
 </template>
