@@ -3,12 +3,14 @@ import { useCvState } from '~/data/useCvState'
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.file'
 const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
+const FOLDER_NAME = 'CvFy'
 
 const driveState = reactive({
   accessToken: '' as string,
   userEmail: '' as string,
   activeFileId: '' as string,
   activeFileName: '' as string,
+  activeFolderId: '' as string,
   isInitializing: false,
   isAuthorizing: false,
   isSaving: false,
@@ -160,6 +162,45 @@ export function useGoogleDrive() {
     return await authorizeDrive()
   }
 
+  async function getOrCreateAppFolder(token: string): Promise<string | null> {
+    try {
+      // 1. Search for existing folder named "CvFy"
+      const searchUrl = `https://www.googleapis.com/drive/v3/files?q=name = '${FOLDER_NAME}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false&fields=files(id, name)`
+      const searchRes = await fetch(searchUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      if (searchRes.ok) {
+        const searchData = await searchRes.json()
+        if (searchData.files && searchData.files.length > 0) {
+          driveState.activeFolderId = searchData.files[0].id
+          return searchData.files[0].id
+        }
+      }
+
+      // 2. Folder does not exist, create it
+      const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: FOLDER_NAME,
+          mimeType: 'application/vnd.google-apps.folder',
+        }),
+      })
+
+      if (createRes.ok) {
+        const folderData = await createRes.json()
+        driveState.activeFolderId = folderData.id
+        return folderData.id
+      }
+    }
+    catch {}
+    return null
+  }
+
   async function openPicker(): Promise<void> {
     try {
       driveState.error = ''
@@ -243,13 +284,22 @@ export function useGoogleDrive() {
       await initGoogleDrive()
       const token = await ensureAccessToken()
 
+      let folderId: string | null = null
+      if (!driveState.activeFileId || asNewFile) {
+        folderId = await getOrCreateAppFolder(token)
+      }
+
       const fileName = `CV_${formSettings.value.name || 'Untitled'}_${formSettings.value.lastName || 'CV'}.json`
       const jsonContent = JSON.stringify({ formSettings: formSettings.value }, null, 2)
       const blob = new Blob([jsonContent], { type: 'application/json' })
 
-      const metadata = {
+      const metadata: Record<string, any> = {
         name: fileName,
         mimeType: 'application/json',
+      }
+
+      if (folderId && (!driveState.activeFileId || asNewFile)) {
+        metadata.parents = [folderId]
       }
 
       const form = new FormData()
