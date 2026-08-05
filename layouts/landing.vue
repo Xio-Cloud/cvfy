@@ -5,7 +5,7 @@ const { locale, t } = useI18n()
 const route = useRoute()
 const localePath = useLocalePath()
 const HREF = `http://cv.xio.vn${route.path}`
-const GITHUB = 'https://github.com/Xio-Cloud/cvfy'
+const GITHUB = 'https://github.com/Xio-Cloud/cvxio'
 
 useHead({
   htmlAttrs: {

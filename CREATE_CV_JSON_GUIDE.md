@@ -52,9 +52,9 @@ State University | *2013 – 2017*
 
 ---
 
-## 2. Mapping Markdown Sections to CvFy JSON Fields
+## 2. Mapping Markdown Sections to CvXio JSON Fields
 
-| Markdown Section | CvFy JSON Field | Data Type | Notes |
+| Markdown Section | CvXio JSON Field | Data Type | Notes |
 | :--- | :--- | :--- | :--- |
 | `# Name` | `name`, `lastName` | `string` | Split full name into `name` and `lastName` |
 | `### Job Title` | `jobTitle` | `string` | e.g. `"Senior Software Engineer"` |
@@ -94,7 +94,7 @@ Each item inside `work`, `education`, or `projects` arrays uses this JSON object
 
 ## 4. Complete Generic JSON Example
 
-Here is the exact JSON conversion of the sample Markdown CV above, ready for import into **CvFy**:
+Here is the exact JSON conversion of the sample Markdown CV above, ready for import into **CvXio**:
 
 ```json
 {
@@ -206,7 +206,7 @@ Here is the exact JSON conversion of the sample Markdown CV above, ready for imp
 
 ## 5. How to Import the JSON File
 
-1. Open **[CvFy](http://cv.xio.vn/create)** (or `http://localhost:3000/create`).
+1. Open **[CvXio](http://cv.xio.vn/create)** (or `http://localhost:3000/create`).
 2. Scroll to the bottom of the left sidebar (**CV Settings**).
 3. Click **Upload CV settings (JSON)** and select your `.json` file.
 4. All sections, experience entries, and formatting settings will instantly load into the live CV preview!
