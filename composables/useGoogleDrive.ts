@@ -308,6 +308,23 @@ export function useGoogleDrive() {
     }
   }
 
+  function signOutDrive() {
+    if (driveState.accessToken) {
+      const windowGoogle = (window as any).google
+      if (windowGoogle?.accounts?.oauth2?.revoke) {
+        windowGoogle.accounts.oauth2.revoke(driveState.accessToken, () => {})
+      }
+    }
+    driveState.accessToken = ''
+    driveState.activeFileId = ''
+    driveState.activeFileName = ''
+    driveState.isDirty = false
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('gdrive_active_file_id')
+      localStorage.removeItem('gdrive_active_file_name')
+    }
+  }
+
   return {
     driveState,
     initGoogleDrive,
@@ -317,5 +334,6 @@ export function useGoogleDrive() {
     loadFileFromDrive,
     saveToDrive,
     checkDriveUrlParams,
+    signOutDrive,
   }
 }

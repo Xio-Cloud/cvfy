@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useGoogleDrive } from '~/composables/useGoogleDrive'
 
-const { driveState, openPicker, saveToDrive, setCredentials, checkDriveUrlParams } = useGoogleDrive()
+const { driveState, openPicker, saveToDrive, setCredentials, checkDriveUrlParams, signOutDrive } = useGoogleDrive()
 const route = useRoute()
 
 const showConfigModal = ref(false)
@@ -63,13 +63,23 @@ function handleSaveDrive(asNewFile = false) {
       <!-- draw.io style Status Banner -->
       <div
         v-if="driveState.activeFileName"
-        class="text-xs p-2 rounded flex items-center justify-between transition-colors"
+        class="text-xs p-2 rounded flex items-center justify-between transition-colors gap-2"
         :class="driveState.isDirty ? 'bg-amber-50 border border-amber-200 text-amber-900' : 'bg-emerald-50 border border-emerald-200 text-emerald-900'"
       >
         <span class="truncate font-medium">📄 {{ driveState.activeFileName }}</span>
-        <span class="text-[10px] shrink-0 font-semibold px-1.5 py-0.5 rounded" :class="driveState.isDirty ? 'bg-amber-200 text-amber-900' : 'bg-emerald-200 text-emerald-900'">
-          {{ driveState.isDirty ? 'Unsaved' : 'Saved' }}
-        </span>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded" :class="driveState.isDirty ? 'bg-amber-200 text-amber-900' : 'bg-emerald-200 text-emerald-900'">
+            {{ driveState.isDirty ? 'Unsaved' : 'Saved' }}
+          </span>
+          <button
+            type="button"
+            title="Disconnect / Close file"
+            class="text-slate-400 hover:text-slate-700 font-bold px-1"
+            @click="signOutDrive"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       <!-- Action Buttons -->
