@@ -36,11 +36,19 @@ export function useGoogleDrive() {
   )
 
   function loadSavedCredentials() {
+    const config = useRuntimeConfig()
+    const defaultClientId = (config.public?.googleClientId as string) || ''
+    const defaultApiKey = (config.public?.googleApiKey as string) || ''
+
     if (typeof localStorage !== 'undefined') {
-      driveState.clientId = localStorage.getItem('gdrive_client_id') || ''
-      driveState.apiKey = localStorage.getItem('gdrive_api_key') || ''
+      driveState.clientId = localStorage.getItem('gdrive_client_id') || defaultClientId
+      driveState.apiKey = localStorage.getItem('gdrive_api_key') || defaultApiKey
       driveState.activeFileId = localStorage.getItem('gdrive_active_file_id') || ''
       driveState.activeFileName = localStorage.getItem('gdrive_active_file_name') || ''
+    }
+    else {
+      driveState.clientId = defaultClientId
+      driveState.apiKey = defaultApiKey
     }
   }
 

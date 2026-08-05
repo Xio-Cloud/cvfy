@@ -42,6 +42,15 @@ export default defineNuxtConfig({
     },
   },
 
+  runtimeConfig: {
+    public: {
+      // eslint-disable-next-line node/prefer-global/process
+      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+      // eslint-disable-next-line node/prefer-global/process
+      googleApiKey: process.env.NUXT_PUBLIC_GOOGLE_API_KEY || '',
+    },
+  },
+
   site: {
     url:
       // eslint-disable-next-line node/prefer-global/process
