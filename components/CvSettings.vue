@@ -310,13 +310,10 @@ function getCurrentColor(colorValue: string): {
                   :display-section="Boolean(formSettings.displayAbout)"
                   section-name="about"
                 />
-                <textarea
+                <CvTextEditor
                   id="aboutme"
                   v-model="formSettings.aboutme"
-                  class="form__control"
-                  name="aboutme"
-                  cols="30"
-                  rows="10"
+                  class="mt-2"
                 />
               </div>
             </div>
