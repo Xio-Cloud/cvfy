@@ -230,11 +230,30 @@ export function useGoogleDrive() {
         throw new Error('Google Picker API not loaded')
       }
 
-      const view = new windowGoogle.picker.View(windowGoogle.picker.ViewId.DOCS)
-      view.setMimeTypes('application/json')
-
       const pickerBuilder = new windowGoogle.picker.PickerBuilder()
-        .addView(view)
+
+      // 1. App Folder View (if CvXio folder exists)
+      const folderId = await getOrCreateAppFolder(token)
+      if (folderId) {
+        const appFolderView = new windowGoogle.picker.DocsView()
+        appFolderView.setParent(folderId)
+        appFolderView.setIncludeFolders(true)
+        pickerBuilder.addView(appFolderView)
+      }
+
+      // 2. All Files View with full folder structure navigation
+      const docsView = new windowGoogle.picker.DocsView(windowGoogle.picker.ViewId.DOCS)
+      docsView.setIncludeFolders(true)
+      docsView.setMimeTypes('application/json,text/plain,application/octet-stream,text/json')
+      pickerBuilder.addView(docsView)
+
+      // 3. Folders View
+      const foldersView = new windowGoogle.picker.DocsView(windowGoogle.picker.ViewId.FOLDERS)
+      foldersView.setIncludeFolders(true)
+      foldersView.setSelectFolderEnabled(true)
+      pickerBuilder.addView(foldersView)
+
+      pickerBuilder
         .setOAuthToken(token)
         .setCallback(async (data: any) => {
           if (data.action === windowGoogle.picker.Action.PICKED) {
