@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useGoogleDrive } from '~/composables/useGoogleDrive'
 
-const { driveState, openPicker, saveToDrive, setCredentials, checkDriveUrlParams, signOutDrive, authorizeDrive } = useGoogleDrive()
+const { driveState, openPicker, saveToDrive, checkDriveUrlParams, signOutDrive, authorizeDrive } = useGoogleDrive()
 const route = useRoute()
-
-const showConfigModal = ref(false)
-const inputClientId = ref(driveState.clientId)
-const inputApiKey = ref(driveState.apiKey)
 
 onMounted(() => {
   if (route.query.fileId || route.query.state) {
@@ -16,32 +12,15 @@ onMounted(() => {
   }
 })
 
-function saveConfig() {
-  setCredentials(inputClientId.value, inputApiKey.value)
-  showConfigModal.value = false
-}
-
 function handleAuthorize() {
-  if (!driveState.clientId) {
-    showConfigModal.value = true
-    return
-  }
   authorizeDrive()
 }
 
 function handleOpenDrive() {
-  if (!driveState.clientId) {
-    showConfigModal.value = true
-    return
-  }
   openPicker()
 }
 
 function handleSaveDrive(asNewFile = false) {
-  if (!driveState.clientId) {
-    showConfigModal.value = true
-    return
-  }
   saveToDrive(asNewFile)
 }
 </script>
@@ -58,13 +37,6 @@ function handleSaveDrive(asNewFile = false) {
         </svg>
         {{ $t("google-drive") }}
       </span>
-      <button
-        type="button"
-        class="text-xs text-slate-500 hover:text-slate-800 underline"
-        @click="showConfigModal = !showConfigModal"
-      >
-        {{ $t("drive-config") }}
-      </button>
     </legend>
 
     <div class="flex flex-col gap-2 w-full">
@@ -82,6 +54,8 @@ function handleSaveDrive(asNewFile = false) {
           Sign in
         </button>
       </div>
+
+      <!-- Active File Status Banner -->
       <div
         v-if="driveState.activeFileName"
         class="text-xs p-2 rounded flex items-center justify-between transition-colors gap-2"
@@ -143,58 +117,6 @@ function handleSaveDrive(asNewFile = false) {
       >
         {{ driveState.error }}
       </p>
-    </div>
-
-    <!-- Credentials Config Modal -->
-    <div
-      v-if="showConfigModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-    >
-      <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
-        <h3 class="font-bold text-base mb-2">
-          {{ $t("drive-config") }}
-        </h3>
-        <p class="text-xs text-slate-600 mb-4">
-          Enter your Google Cloud OAuth2 Client ID to enable direct Google Drive sync.
-        </p>
-
-        <div class="mb-3">
-          <label class="block text-xs font-bold mb-1">Google Client ID</label>
-          <input
-            v-model="inputClientId"
-            type="text"
-            class="form__control text-xs w-full"
-            placeholder="xxx.apps.googleusercontent.com"
-          >
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-xs font-bold mb-1">API Key (Optional)</label>
-          <input
-            v-model="inputApiKey"
-            type="text"
-            class="form__control text-xs w-full"
-            placeholder="API Key for Picker"
-          >
-        </div>
-
-        <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            class="form__btn form__btn--ghost text-xs px-3 py-1"
-            @click="showConfigModal = false"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="form__btn text-xs px-3 py-1"
-            @click="saveConfig"
-          >
-            Save
-          </button>
-        </div>
-      </div>
     </div>
   </fieldset>
 </template>
