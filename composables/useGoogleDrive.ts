@@ -6,6 +6,7 @@ const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/res
 const FOLDER_NAME = 'CvXio'
 
 const driveState = reactive({
+  isSignedIn: false,
   accessToken: '' as string,
   userEmail: '' as string,
   activeFileId: '' as string,
@@ -25,6 +26,7 @@ const driveState = reactive({
 })
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+let lastAutoSaveTime = 0
 
 export function useGoogleDrive() {
   const { formSettings, uploadCVData } = useCvState()
@@ -33,20 +35,47 @@ export function useGoogleDrive() {
   // Restore credentials & access token synchronously upon composable initialization
   loadSavedCredentials()
 
-  // Watch formSettings changes to track unsaved status and trigger Auto-Save
+  function hasFormChanged(): boolean {
+    if (!driveState.savedSnapshot)
+      return true
+    return JSON.stringify(formSettings.value) !== JSON.stringify(driveState.savedSnapshot)
+  }
+
+  // Watch formSettings changes: only set dirty and auto-save if actual data changed
   watch(
     formSettings,
     () => {
-      if (driveState.activeFileId && driveState.accessToken) {
-        driveState.isDirty = true
-        if (driveState.autoSaveEnabled) {
-          if (autoSaveTimer)
-            clearTimeout(autoSaveTimer)
-          autoSaveTimer = setTimeout(() => {
-            if (driveState.isDirty && !driveState.isSaving && driveState.activeFileId) {
-              saveToDrive(false)
-            }
-          }, 3000)
+      if (driveState.activeFileId && (driveState.accessToken || driveState.isSignedIn)) {
+        if (hasFormChanged()) {
+          driveState.isDirty = true
+          if (driveState.autoSaveEnabled) {
+            if (autoSaveTimer)
+              clearTimeout(autoSaveTimer)
+
+            // Debounce 5 seconds after user stops typing
+            autoSaveTimer = setTimeout(() => {
+              const now = Date.now()
+              if (driveState.isDirty && !driveState.isSaving && driveState.activeFileId) {
+                // Minimum 15 seconds gap between consecutive auto-saves to respect Google API limits
+                if (now - lastAutoSaveTime >= 15000) {
+                  lastAutoSaveTime = now
+                  saveToDrive(false)
+                }
+                else {
+                  const remainingWait = 15000 - (now - lastAutoSaveTime)
+                  autoSaveTimer = setTimeout(() => {
+                    if (driveState.isDirty && !driveState.isSaving && driveState.activeFileId) {
+                      lastAutoSaveTime = Date.now()
+                      saveToDrive(false)
+                    }
+                  }, remainingWait)
+                }
+              }
+            }, 5000)
+          }
+        }
+        else {
+          driveState.isDirty = false
         }
       }
     },
@@ -68,10 +97,14 @@ export function useGoogleDrive() {
         driveState.autoSaveEnabled = savedAutoSave === 'true'
       }
 
+      const isSignedInFlag = localStorage.getItem('gdrive_is_signed_in') === 'true'
+      driveState.isSignedIn = isSignedInFlag
+
       const token = localStorage.getItem('gdrive_access_token') || ''
       const expiresAt = Number.parseInt(localStorage.getItem('gdrive_token_expires_at') || '0', 10)
       if (token && Date.now() < expiresAt) {
         driveState.accessToken = token
+        driveState.isSignedIn = true
       }
       else {
         localStorage.removeItem('gdrive_access_token')
@@ -181,10 +214,12 @@ export function useGoogleDrive() {
           const expiresInSeconds = response.expires_in || 3600
           const expiresAt = Date.now() + expiresInSeconds * 1000 - 60000 // 1 minute safety margin
           driveState.accessToken = response.access_token
+          driveState.isSignedIn = true
 
           if (typeof localStorage !== 'undefined') {
             localStorage.setItem('gdrive_access_token', response.access_token)
             localStorage.setItem('gdrive_token_expires_at', expiresAt.toString())
+            localStorage.setItem('gdrive_is_signed_in', 'true')
           }
 
           resolve(response.access_token)
@@ -332,9 +367,12 @@ export function useGoogleDrive() {
         driveState.activeFileName = fileName || `CV_${formSettings.value.name}_${formSettings.value.lastName}.json`
         driveState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
         driveState.isDirty = false
+        driveState.isSignedIn = true
+
         if (typeof localStorage !== 'undefined') {
           localStorage.setItem('gdrive_active_file_id', driveState.activeFileId)
           localStorage.setItem('gdrive_active_file_name', driveState.activeFileName)
+          localStorage.setItem('gdrive_is_signed_in', 'true')
         }
       }
     }
@@ -413,10 +451,12 @@ export function useGoogleDrive() {
       driveState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
       driveState.lastSavedAt = new Date()
       driveState.isDirty = false
+      driveState.isSignedIn = true
 
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('gdrive_active_file_id', result.id)
         localStorage.setItem('gdrive_active_file_name', fileName)
+        localStorage.setItem('gdrive_is_signed_in', 'true')
       }
     }
     catch (err: any) {
@@ -460,12 +500,14 @@ export function useGoogleDrive() {
         windowGoogle.accounts.oauth2.revoke(driveState.accessToken, () => {})
       }
     }
+    driveState.isSignedIn = false
     driveState.accessToken = ''
     driveState.activeFileId = ''
     driveState.activeFileName = ''
     driveState.savedSnapshot = null
     driveState.isDirty = false
     if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('gdrive_is_signed_in')
       localStorage.removeItem('gdrive_access_token')
       localStorage.removeItem('gdrive_token_expires_at')
       localStorage.removeItem('gdrive_active_file_id')

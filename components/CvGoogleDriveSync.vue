@@ -116,7 +116,7 @@ function toggleAutoSave(e: Event) {
     <div class="flex flex-col gap-2 w-full">
       <!-- Connect Banner when not authenticated -->
       <div
-        v-if="!driveState.accessToken && !driveState.activeFileName"
+        v-if="!driveState.isSignedIn && !driveState.accessToken"
         class="text-xs p-2 rounded bg-blue-50 border border-blue-200 text-blue-900 flex items-center justify-between"
       >
         <span class="text-[11px] font-medium text-blue-800">Sign in to sync with your Google Drive</span>
@@ -126,6 +126,22 @@ function toggleAutoSave(e: Event) {
           @click="handleAuthorize"
         >
           Sign in
+        </button>
+      </div>
+
+      <!-- Connected Badge when authenticated but no active file yet -->
+      <div
+        v-else-if="!driveState.activeFileName"
+        class="text-xs p-2 rounded bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center justify-between"
+      >
+        <span class="text-[11px] font-medium text-emerald-800">☁️ Google Drive Connected</span>
+        <button
+          type="button"
+          title="Sign out / Disconnect"
+          class="text-slate-400 hover:text-slate-700 font-bold px-1 text-xs"
+          @click="signOutDrive"
+        >
+          ✕
         </button>
       </div>
 
