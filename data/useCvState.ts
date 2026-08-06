@@ -1,4 +1,4 @@
-import { reactive, toRefs } from 'vue'
+import { computed, reactive, toRefs } from 'vue'
 import {
   cvSettingTemplate,
   cvSettingsEmptyTemplate,
@@ -32,17 +32,50 @@ export function resetAllStorageActiveFiles(exceptHandler?: StorageResetCallback)
 
 const state = reactive({
   formSettings: { ...cvSettingsEmptyTemplate } as Cv,
+  activeFileName: null as string | null,
   isLoading: false,
   isProfilePhotoLoading: false,
 })
 
 export function useCvState() {
+  function setActiveFileName(fileName: string | null): void {
+    if (!fileName || !fileName.trim()) {
+      state.activeFileName = null
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('cv_active_file_name')
+      }
+      return
+    }
+    const cleanName = fileName.trim().split('/').pop() || fileName.trim()
+    state.activeFileName = cleanName
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('cv_active_file_name', cleanName)
+    }
+  }
+
+  const suggestedFileName = computed(() => {
+    if (state.activeFileName && state.activeFileName.trim() !== '') {
+      const baseName = state.activeFileName.trim()
+      return baseName.endsWith('.json') ? baseName : `${baseName}.json`
+    }
+    const i18n = useI18n()
+    const name = state.formSettings.name?.trim() || 'Untitled'
+    const lastName = state.formSettings.lastName?.trim() || 'CV'
+    const locale = i18n?.locale?.value || 'en'
+    return `CV_${name}_${lastName}_${locale}.json`
+  })
+
   function setUpCvSettings(): void {
     if (typeof window === 'undefined' || typeof localStorage === 'undefined' || typeof localStorage.getItem !== 'function') {
       state.formSettings = { ...cvSettingTemplate }
       normalizeFormSettings(state.formSettings)
       state.isLoading = false
       return
+    }
+
+    const savedActiveName = localStorage.getItem('cv_active_file_name')
+    if (savedActiveName) {
+      state.activeFileName = savedActiveName
     }
 
     const i18n = useI18n()
@@ -143,17 +176,22 @@ export function useCvState() {
   }
 
   function uploadCV(e: any): void {
+    const file = e.target.files?.[0]
+    if (!file)
+      return
+    setActiveFileName(file.name)
     const fr = new FileReader()
     fr.onload = (e: any) => {
       const data = JSON.parse(e.target.result)
       uploadCVData(data, false)
     }
-    fr.readAsText(e.target.files[0])
+    fr.readAsText(file)
   }
 
   function resetForm(): void {
     const i18n = useI18n()
     resetAllStorageActiveFiles()
+    setActiveFileName(null)
     state.formSettings = {
       ...cvSettingTemplate,
     }
@@ -169,6 +207,7 @@ export function useCvState() {
   function clearForm(): void {
     const i18n = useI18n()
     resetAllStorageActiveFiles()
+    setActiveFileName(null)
     state.formSettings = { ...cvSettingsEmptyTemplate }
     normalizeFormSettings(state.formSettings)
     if (typeof localStorage !== 'undefined') {
@@ -296,6 +335,8 @@ export function useCvState() {
   return {
     ...toRefs(state),
     setUpCvSettings,
+    setActiveFileName,
+    suggestedFileName,
     addSkill,
     removeSkill,
     addEntry,
