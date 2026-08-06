@@ -15,7 +15,7 @@ const {
   authorizeDrive,
 } = useGoogleDrive()
 
-const { formSettings, suggestedFileName } = useCvState()
+const { suggestedFileName } = useCvState()
 const route = useRoute()
 
 const showSaveAsModal = ref(false)

@@ -19,7 +19,7 @@ const {
   disconnectGitHub,
 } = useGitHubStorage()
 
-const { formSettings, suggestedFileName } = useCvState()
+const { suggestedFileName } = useCvState()
 const route = useRoute()
 
 // Token Auth Input
