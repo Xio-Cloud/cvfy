@@ -397,6 +397,24 @@ export function useGoogleDrive() {
     }
   }
 
+  async function findExistingFileInFolder(token: string, folderId: string, fileName: string): Promise<string | null> {
+    try {
+      const safeName = fileName.replace(/'/g, '\\\'')
+      const q = `'${folderId}' in parents and name = '${safeName}' and trashed = false`
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.files && data.files.length > 0) {
+          return data.files[0].id
+        }
+      }
+    }
+    catch {}
+    return null
+  }
+
   async function saveToDrive(asNewFile = false, customFileName?: string): Promise<void> {
     if (!asNewFile && (!driveState.activeFileId || !driveState.isDirty)) {
       return
@@ -413,17 +431,25 @@ export function useGoogleDrive() {
       await initGoogleDrive()
       const token = await ensureAccessToken()
 
-      let folderId: string | null = null
-      if (!driveState.activeFileId || asNewFile) {
-        folderId = await getOrCreateAppFolder(token)
-      }
-
       let fileName = customFileName?.trim()
       if (!fileName) {
-        fileName = `CV_${formSettings.value.name || 'Untitled'}_${formSettings.value.lastName || 'CV'}.json`
+        fileName = driveState.activeFileName || `CV_${formSettings.value.name || 'Untitled'}_${formSettings.value.lastName || 'CV'}.json`
       }
       if (!fileName.endsWith('.json')) {
         fileName += '.json'
+      }
+
+      let folderId: string | null = null
+      let targetFileId: string | null = !asNewFile ? driveState.activeFileId : null
+
+      if (!targetFileId) {
+        folderId = await getOrCreateAppFolder(token)
+        if (folderId) {
+          const existingId = await findExistingFileInFolder(token, folderId, fileName)
+          if (existingId) {
+            targetFileId = existingId
+          }
+        }
       }
 
       const jsonContent = JSON.stringify({ formSettings: formSettings.value }, null, 2)
@@ -434,7 +460,7 @@ export function useGoogleDrive() {
         mimeType: 'application/json',
       }
 
-      if (folderId && (!driveState.activeFileId || asNewFile)) {
+      if (folderId && !targetFileId) {
         metadata.parents = [folderId]
       }
 
@@ -445,8 +471,8 @@ export function useGoogleDrive() {
       let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart'
       let method = 'POST'
 
-      if (driveState.activeFileId && !asNewFile) {
-        url = `https://www.googleapis.com/upload/drive/v3/files/${driveState.activeFileId}?uploadType=multipart`
+      if (targetFileId) {
+        url = `https://www.googleapis.com/upload/drive/v3/files/${targetFileId}?uploadType=multipart`
         method = 'PATCH'
       }
 
