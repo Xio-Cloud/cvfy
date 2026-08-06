@@ -1,6 +1,5 @@
 import { reactive, watch } from 'vue'
-import { resetActiveDriveFile } from '~/composables/useGoogleDrive'
-import { useCvState } from '~/data/useCvState'
+import { registerStorageResetHandler, resetAllStorageActiveFiles, useCvState } from '~/data/useCvState'
 
 export interface GitHubRepo {
   name: string
@@ -240,7 +239,7 @@ export function useGitHubStorage() {
   }
 
   function loadSavedState() {
-    if (typeof localStorage === 'undefined')
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined' || typeof localStorage.getItem !== 'function')
       return
     githubState.token = localStorage.getItem('gh_token') || ''
     githubState.selectedRepo = localStorage.getItem('gh_selected_repo') || ''
@@ -618,14 +617,14 @@ export function useGitHubStorage() {
       const jsonData = JSON.parse(decodedContent)
 
       if (jsonData && uploadCVData) {
-        resetActiveDriveFile()
+        resetAllStorageActiveFiles(resetActiveGitHubFile)
         uploadCVData(jsonData, true)
         githubState.activeFilePath = filePath
         githubState.activeFileSha = data.sha
         githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
         githubState.isDirty = false
 
-        if (typeof localStorage !== 'undefined') {
+        if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
           localStorage.setItem('gh_active_file_path', filePath)
           localStorage.setItem('gh_active_file_sha', data.sha)
         }
@@ -721,17 +720,6 @@ export function useGitHubStorage() {
     }
   }
 
-  export function resetActiveGitHubFile() {
-    githubState.activeFilePath = ''
-    githubState.activeFileSha = ''
-    githubState.savedSnapshot = null
-    githubState.isDirty = false
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('gh_active_file_path')
-      localStorage.removeItem('gh_active_file_sha')
-    }
-  }
-
   function disconnectGitHub() {
     githubState.token = ''
     githubState.user = null
@@ -744,7 +732,7 @@ export function useGitHubStorage() {
     githubState.isDirty = false
     githubState.error = ''
 
-    if (typeof localStorage !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && typeof localStorage.removeItem === 'function') {
       localStorage.removeItem('gh_token')
       localStorage.removeItem('gh_user')
       localStorage.removeItem('gh_selected_repo')
@@ -778,3 +766,17 @@ export function useGitHubStorage() {
     disconnectGitHub,
   }
 }
+
+export function resetActiveGitHubFile() {
+  githubState.activeFilePath = ''
+  githubState.activeFileSha = ''
+  githubState.savedSnapshot = null
+  githubState.isDirty = false
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('gh_active_file_path')
+    localStorage.removeItem('gh_active_file_sha')
+  }
+}
+
+// Register with central storage manager
+registerStorageResetHandler(resetActiveGitHubFile)

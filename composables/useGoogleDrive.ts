@@ -1,6 +1,5 @@
 import { reactive, watch } from 'vue'
-import { resetActiveGitHubFile } from '~/composables/useGitHubStorage'
-import { useCvState } from '~/data/useCvState'
+import { registerStorageResetHandler, resetAllStorageActiveFiles, useCvState } from '~/data/useCvState'
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.file'
 const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
@@ -101,7 +100,7 @@ export function useGoogleDrive() {
     const defaultClientId = (config.public?.googleClientId as string) || ''
     const defaultApiKey = (config.public?.googleApiKey as string) || ''
 
-    if (typeof localStorage !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
       driveState.clientId = localStorage.getItem('gdrive_client_id') || defaultClientId
       driveState.apiKey = localStorage.getItem('gdrive_api_key') || defaultApiKey
       driveState.activeFileId = localStorage.getItem('gdrive_active_file_id') || ''
@@ -376,7 +375,7 @@ export function useGoogleDrive() {
 
       const data = await response.json()
       if (data && uploadCVData) {
-        resetActiveGitHubFile()
+        resetAllStorageActiveFiles(resetActiveDriveFile)
         uploadCVData(data, true)
         driveState.activeFileId = fileId
         driveState.activeFileName = fileName || `CV_${formSettings.value.name}_${formSettings.value.lastName}.json`
@@ -520,21 +519,6 @@ export function useGoogleDrive() {
     }
   }
 
-  export function resetActiveDriveFile() {
-    if (autoSaveTimer) {
-      clearTimeout(autoSaveTimer)
-      autoSaveTimer = null
-    }
-    driveState.activeFileId = ''
-    driveState.activeFileName = ''
-    driveState.savedSnapshot = null
-    driveState.isDirty = false
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('gdrive_active_file_id')
-      localStorage.removeItem('gdrive_active_file_name')
-    }
-  }
-
   // Handle Google Drive "Open with..." URL parameters (draw.io style ?state=... or ?fileId=...)
   async function checkDriveUrlParams(routeQuery: any) {
     if (routeQuery.fileId) {
@@ -591,3 +575,21 @@ export function useGoogleDrive() {
     signOutDrive,
   }
 }
+
+export function resetActiveDriveFile() {
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer)
+    autoSaveTimer = null
+  }
+  driveState.activeFileId = ''
+  driveState.activeFileName = ''
+  driveState.savedSnapshot = null
+  driveState.isDirty = false
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('gdrive_active_file_id')
+    localStorage.removeItem('gdrive_active_file_name')
+  }
+}
+
+// Register with central storage manager
+registerStorageResetHandler(resetActiveDriveFile)

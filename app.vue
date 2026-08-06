@@ -20,7 +20,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NuxtPwaAssets />
+  <ClientOnly>
+    <NuxtPwaAssets />
+  </ClientOnly>
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>

@@ -3,8 +3,6 @@ import {
   cvSettingTemplate,
   cvSettingsEmptyTemplate,
 } from './example-cv-settings'
-import { resetActiveDriveFile } from '~/composables/useGoogleDrive'
-import { resetActiveGitHubFile } from '~/composables/useGitHubStorage'
 import {
   CV_PARTS,
   type Cv,
@@ -17,6 +15,21 @@ import {
 } from '~/types/cvxio'
 import { htmlSummaryToMarkdown } from '~/utils/markdown'
 
+type StorageResetCallback = () => void
+const storageResetHandlers = new Set<StorageResetCallback>()
+
+export function registerStorageResetHandler(handler: StorageResetCallback) {
+  storageResetHandlers.add(handler)
+}
+
+export function resetAllStorageActiveFiles(exceptHandler?: StorageResetCallback) {
+  for (const handler of storageResetHandlers) {
+    if (handler !== exceptHandler) {
+      handler()
+    }
+  }
+}
+
 const state = reactive({
   formSettings: { ...cvSettingsEmptyTemplate } as Cv,
   isLoading: false,
@@ -24,9 +37,15 @@ const state = reactive({
 })
 
 export function useCvState() {
-  const i18n = useI18n()
-
   function setUpCvSettings(): void {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined' || typeof localStorage.getItem !== 'function') {
+      state.formSettings = { ...cvSettingTemplate }
+      normalizeFormSettings(state.formSettings)
+      state.isLoading = false
+      return
+    }
+
+    const i18n = useI18n()
     const locale = `cvSettings-${i18n.locale.value}`
     const cvSettings = localStorage.getItem(locale)
 
@@ -112,8 +131,7 @@ export function useCvState() {
       return
 
     if (!isFromRemote) {
-      resetActiveDriveFile()
-      resetActiveGitHubFile()
+      resetAllStorageActiveFiles()
     }
 
     const formSettingsData = data.formSettings || data
@@ -134,24 +152,28 @@ export function useCvState() {
   }
 
   function resetForm(): void {
-    resetActiveDriveFile()
-    resetActiveGitHubFile()
+    const i18n = useI18n()
+    resetAllStorageActiveFiles()
     state.formSettings = {
       ...cvSettingTemplate,
     }
     normalizeFormSettings(state.formSettings)
-    localStorage.setItem(
-      `cvSettings-${i18n.locale.value}`,
-      JSON.stringify(state.formSettings),
-    )
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(
+        `cvSettings-${i18n.locale.value}`,
+        JSON.stringify(state.formSettings),
+      )
+    }
   }
 
   function clearForm(): void {
-    resetActiveDriveFile()
-    resetActiveGitHubFile()
+    const i18n = useI18n()
+    resetAllStorageActiveFiles()
     state.formSettings = { ...cvSettingsEmptyTemplate }
     normalizeFormSettings(state.formSettings)
-    localStorage.removeItem(`cvSettings-${i18n.locale.value}`)
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(`cvSettings-${i18n.locale.value}`)
+    }
   }
 
   function changeDisplaySection(e: { sectionName: string, status: boolean }): void {
