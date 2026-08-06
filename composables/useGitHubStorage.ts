@@ -117,29 +117,18 @@ export function useGitHubStorage() {
         const config = useRuntimeConfig()
         const clientId = (config.public?.githubClientId as string) || ''
 
-        let res: any = null
-
-        // Try serverless endpoint first, fallback to client-side CORS proxy
-        try {
-          res = await $fetch('/api/github/oauth', {
-            method: 'POST',
-            body: { code: routeQuery.code },
-          })
-        }
-        catch {
-          // Direct Client-side exchange via CORS proxy without server backend
-          res = await $fetch('https://corsproxy.io/?https://github.com/login/oauth/access_token', {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-            },
-            body: {
-              client_id: clientId,
-              code: routeQuery.code,
-            },
-          })
-        }
+        // Direct Client-side exchange via CORS proxy without server backend
+        const res: any = await $fetch('https://corsproxy.io/?https://github.com/login/oauth/access_token', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: {
+            client_id: clientId,
+            code: routeQuery.code,
+          },
+        })
 
         if (res?.error) {
           throw new Error(res.error_description || res.error)
