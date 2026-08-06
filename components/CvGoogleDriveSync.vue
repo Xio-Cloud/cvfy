@@ -17,6 +17,28 @@ onMounted(() => {
   }
 })
 
+function generateTimestampedFileName() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+  const timestamp = `${year}-${month}-${day}_${hours}-${minutes}`
+
+  let baseName = ''
+  if (driveState.activeFileName) {
+    baseName = driveState.activeFileName.replace(/\.json$/i, '')
+  }
+  else {
+    const name = formSettings.value.name || 'Untitled'
+    const lastName = formSettings.value.lastName || 'CV'
+    baseName = `CV_${name}_${lastName}`
+  }
+
+  return `${baseName}_${timestamp}.json`
+}
+
 function handleAuthorize() {
   authorizeDrive()
 }
@@ -27,8 +49,7 @@ function handleOpenDrive() {
 
 function handleSaveDrive(asNewFile = false) {
   if (asNewFile) {
-    const defaultName = driveState.activeFileName || `CV_${formSettings.value.name || 'Untitled'}_${formSettings.value.lastName || 'CV'}.json`
-    saveAsFileName.value = defaultName
+    saveAsFileName.value = generateTimestampedFileName()
     showSaveAsModal.value = true
   }
   else {
