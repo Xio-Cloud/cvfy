@@ -200,17 +200,31 @@ When using AI coding assistants (such as **Antigravity**, **Cursor**, **GitHub C
 export function useGitHubStorage() {
   const { formSettings, uploadCVData } = useCvState()
 
+  function hasGitHubFormChanged(): boolean {
+    if (!githubState.activeFilePath || !githubState.token) {
+      return false
+    }
+    if (!githubState.savedSnapshot) {
+      githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
+      return false
+    }
+    return JSON.stringify(formSettings.value) !== JSON.stringify(githubState.savedSnapshot)
+  }
+
   // Track unsaved changes relative to last loaded/committed GitHub snapshot
   watch(
     formSettings,
     () => {
-      if (githubState.activeFilePath && githubState.token) {
-        if (githubState.savedSnapshot) {
-          githubState.isDirty = JSON.stringify(formSettings.value) !== JSON.stringify(githubState.savedSnapshot)
-        }
-        else {
-          githubState.isDirty = true
-        }
+      if (!githubState.activeFilePath || !githubState.token) {
+        githubState.isDirty = false
+        return
+      }
+
+      if (hasGitHubFormChanged()) {
+        githubState.isDirty = true
+      }
+      else {
+        githubState.isDirty = false
       }
     },
     { deep: true },
@@ -239,6 +253,11 @@ export function useGitHubStorage() {
         githubState.user = JSON.parse(savedUser)
       }
       catch {}
+    }
+
+    if (githubState.activeFilePath) {
+      githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
+      githubState.isDirty = false
     }
   }
 
@@ -627,32 +646,31 @@ export function useGitHubStorage() {
     githubState.isCommitting = true
     githubState.error = ''
     try {
-      if (!targetPath) {
+      let finalPath = targetPath
+      if (!finalPath) {
         const name = formSettings.value.name || 'Untitled'
         const lastName = formSettings.value.lastName || 'CV'
-        targetPath = `CV_${name}_${lastName}.json`
+        finalPath = `CV_${name}_${lastName}.json`
       }
-      if (!targetPath.endsWith('.json')) {
-        targetPath += '.json'
+      if (!finalPath.endsWith('.json')) {
+        finalPath += '.json'
       }
 
       const jsonString = JSON.stringify({ formSettings: formSettings.value }, null, 2)
       const base64Content = toBase64(jsonString)
 
       const bodyData: Record<string, any> = {
-        message: commitMessage.trim() || `feat(cv): update ${targetPath}`,
+        message: commitMessage.trim() || `feat(cv): update ${finalPath}`,
         content: base64Content,
         branch: githubState.selectedBranch,
       }
 
-      // Include sha if updating an existing file on this path
-      if (githubState.activeFilePath === targetPath && githubState.activeFileSha) {
+      if (githubState.activeFilePath === finalPath && githubState.activeFileSha) {
         bodyData.sha = githubState.activeFileSha
       }
       else {
-        // Check if file already exists at targetPath to get its sha
         try {
-          const existing = await fetchGitHub(`/repos/${githubState.selectedRepo}/contents/${targetPath}?ref=${githubState.selectedBranch}`)
+          const existing = await fetchGitHub(`/repos/${githubState.selectedRepo}/contents/${finalPath}?ref=${githubState.selectedBranch}`)
           if (existing?.sha) {
             bodyData.sha = existing.sha
           }
@@ -660,19 +678,19 @@ export function useGitHubStorage() {
         catch {}
       }
 
-      const resData = await fetchGitHub(`/repos/${githubState.selectedRepo}/contents/${targetPath}`, {
+      const resData = await fetchGitHub(`/repos/${githubState.selectedRepo}/contents/${finalPath}`, {
         method: 'PUT',
         body: JSON.stringify(bodyData),
       })
 
-      githubState.activeFilePath = targetPath
+      githubState.activeFilePath = finalPath
       githubState.activeFileSha = resData.content?.sha || ''
       githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
       githubState.lastCommittedAt = new Date()
       githubState.isDirty = false
 
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('gh_active_file_path', targetPath)
+        localStorage.setItem('gh_active_file_path', finalPath)
         localStorage.setItem('gh_active_file_sha', githubState.activeFileSha)
       }
 
@@ -685,6 +703,14 @@ export function useGitHubStorage() {
     }
     finally {
       githubState.isCommitting = false
+    }
+  }
+
+  function undoGitHubChanges() {
+    if (githubState.savedSnapshot && uploadCVData) {
+      uploadCVData({ formSettings: githubState.savedSnapshot })
+      githubState.isDirty = false
+      githubState.error = ''
     }
   }
 
@@ -740,6 +766,7 @@ export function useGitHubStorage() {
     fetchFiles,
     loadFileFromGitHub,
     commitToGitHub,
+    undoGitHubChanges,
     resetActiveGitHubFile,
     disconnectGitHub,
   }

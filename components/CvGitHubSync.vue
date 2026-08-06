@@ -15,6 +15,7 @@ const {
   createBranch,
   loadFileFromGitHub,
   commitToGitHub,
+  undoGitHubChanges,
   disconnectGitHub,
 } = useGitHubStorage()
 
@@ -309,20 +310,32 @@ async function handleSelectFile(path: string) {
               : 'bg-emerald-50 border border-emerald-200 text-emerald-900'"
         >
           <span class="truncate font-medium">📄 {{ githubState.activeFilePath }}</span>
-          <span
-            class="text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0"
-            :class="githubState.isCommitting
-              ? 'bg-blue-200 text-blue-900'
-              : githubState.isDirty
-                ? 'bg-amber-200 text-amber-900'
-                : 'bg-emerald-200 text-emerald-900'"
-          >
-            {{ githubState.isCommitting
-              ? 'Committing...'
-              : githubState.isDirty
-                ? 'Modified'
-                : formattedLastCommitted ? `Committed ${formattedLastCommitted}` : 'Pushed' }}
-          </span>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span
+              class="text-[10px] font-semibold px-1.5 py-0.5 rounded"
+              :class="githubState.isCommitting
+                ? 'bg-blue-200 text-blue-900'
+                : githubState.isDirty
+                  ? 'bg-amber-200 text-amber-900'
+                  : 'bg-emerald-200 text-emerald-900'"
+            >
+              {{ githubState.isCommitting
+                ? 'Committing...'
+                : githubState.isDirty
+                  ? 'Modified'
+                  : formattedLastCommitted ? `Committed ${formattedLastCommitted}` : 'Pushed' }}
+            </span>
+
+            <button
+              v-if="githubState.isDirty && githubState.savedSnapshot"
+              type="button"
+              title="Undo / Revert changes to last committed state on GitHub"
+              class="text-amber-700 hover:text-amber-900 bg-amber-200/60 hover:bg-amber-200 text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors"
+              @click="undoGitHubChanges"
+            >
+              ↩️ Undo
+            </button>
+          </div>
         </div>
 
         <!-- Action Buttons: Open & Commit & Push & AI Skill -->
