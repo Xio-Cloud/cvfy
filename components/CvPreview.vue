@@ -13,8 +13,6 @@ const { formSettings, isLoading } = useCvState()
     bg-white
     relative
     w-full
-    overflow-y-auto
-    overflow-x-hidden
     p-6
     flex
     flex-col

@@ -17,7 +17,7 @@ import { htmlSummaryToMarkdown } from '~/utils/markdown'
 
 const state = reactive({
   formSettings: { ...cvSettingsEmptyTemplate } as Cv,
-  isLoading: true,
+  isLoading: false,
   isProfilePhotoLoading: false,
 })
 
