@@ -10,7 +10,7 @@ const { t, locale } = useI18n()
 
 const href = `http://cv.xio.vn${route.path}`
 
-// Resizable Sidebar State
+// Resizable Sidebar State (Default: 320px - exact classic size)
 const DEFAULT_SIDEBAR_WIDTH = 320
 const MIN_SIDEBAR_WIDTH = 220
 const MAX_SIDEBAR_WIDTH = 650
@@ -21,9 +21,12 @@ const isResizing = ref(false)
 onMounted(() => {
   setUpCvSettings()
   if (typeof localStorage !== 'undefined') {
-    const savedWidth = Number.parseInt(localStorage.getItem('cvxio_sidebar_width') || '0', 10)
-    if (savedWidth >= MIN_SIDEBAR_WIDTH && savedWidth <= MAX_SIDEBAR_WIDTH) {
-      sidebarWidth.value = savedWidth
+    const saved = localStorage.getItem('cvxio_sidebar_width')
+    if (saved) {
+      const parsed = Number.parseInt(saved, 10)
+      if (parsed >= MIN_SIDEBAR_WIDTH && parsed <= MAX_SIDEBAR_WIDTH) {
+        sidebarWidth.value = parsed
+      }
     }
   }
 })
@@ -141,8 +144,8 @@ useHead({
   >
     <!-- Resizable Sidebar -->
     <CvSettings
-      class="sidebar-container w-full lg:w-auto h-full shrink-0 overflow-y-auto"
-      :style="{ width: typeof window !== 'undefined' && window.innerWidth >= 1024 ? `${sidebarWidth}px` : undefined }"
+      class="sidebar-container w-full h-full shrink-0 overflow-y-auto"
+      :style="{ '--sidebar-width': `${sidebarWidth}px` }"
     />
 
     <!-- Resizer Handle Bar -->
@@ -156,7 +159,7 @@ useHead({
     </div>
 
     <!-- CV Preview Canvas -->
-    <CvPreview class="preview-container flex-1 h-full overflow-y-auto" />
+    <CvPreview class="preview-container flex-1 h-full overflow-y-auto min-w-0" />
   </main>
 </template>
 
@@ -166,6 +169,12 @@ useHead({
 @media screen and (min-width: 1024px) {
   .main {
     @apply flex h-screen overflow-hidden;
+  }
+
+  .sidebar-container {
+    width: var(--sidebar-width, 320px) !important;
+    min-width: 220px !important;
+    max-width: 650px !important;
   }
 }
 
