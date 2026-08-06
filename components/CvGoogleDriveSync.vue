@@ -212,7 +212,7 @@ function toggleAutoSave(e: Event) {
         <button
           type="button"
           class="form__btn flex items-center justify-center gap-1 py-1.5 text-xs"
-          :disabled="driveState.isSaving"
+          :disabled="driveState.isSaving || !driveState.isDirty"
           @click="handleSaveDrive(false)"
         >
           <span>💾</span>

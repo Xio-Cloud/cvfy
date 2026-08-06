@@ -398,7 +398,7 @@ export function useGoogleDrive() {
   }
 
   async function saveToDrive(asNewFile = false, customFileName?: string): Promise<void> {
-    if (!asNewFile && !driveState.activeFileId) {
+    if (!asNewFile && (!driveState.activeFileId || !driveState.isDirty)) {
       return
     }
 

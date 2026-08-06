@@ -619,10 +619,14 @@ export function useGitHubStorage() {
   }
 
   async function commitToGitHub(commitMessage: string, customPath?: string): Promise<boolean> {
+    const targetPath = customPath?.trim() || githubState.activeFilePath
+    if (githubState.activeFilePath && targetPath === githubState.activeFilePath && !githubState.isDirty) {
+      return false
+    }
+
     githubState.isCommitting = true
     githubState.error = ''
     try {
-      let targetPath = customPath?.trim() || githubState.activeFilePath
       if (!targetPath) {
         const name = formSettings.value.name || 'Untitled'
         const lastName = formSettings.value.lastName || 'CV'

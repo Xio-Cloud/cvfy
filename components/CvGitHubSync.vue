@@ -341,7 +341,7 @@ async function handleSelectFile(path: string) {
             <button
               type="button"
               class="form__btn flex items-center justify-center gap-1 py-1.5 text-xs"
-              :disabled="githubState.isCommitting"
+              :disabled="githubState.isCommitting || !githubState.isDirty"
               @click="handleOpenCommitModal"
             >
               <span>🚀</span>
