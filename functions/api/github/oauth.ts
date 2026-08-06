@@ -1,6 +1,8 @@
 interface Env {
   NUXT_GITHUB_CLIENT_SECRET?: string
+  GITHUB_CLIENT_SECRET?: string
   NUXT_PUBLIC_GITHUB_CLIENT_ID?: string
+  GITHUB_CLIENT_ID?: string
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
@@ -14,8 +16,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       })
     }
 
-    const clientId = context.env.NUXT_PUBLIC_GITHUB_CLIENT_ID || ''
-    const clientSecret = context.env.NUXT_GITHUB_CLIENT_SECRET || ''
+    const clientId = context.env.NUXT_PUBLIC_GITHUB_CLIENT_ID || context.env.GITHUB_CLIENT_ID || ''
+    const clientSecret = context.env.NUXT_GITHUB_CLIENT_SECRET || context.env.GITHUB_CLIENT_SECRET || ''
+
+    if (!clientId || !clientSecret) {
+      return new Response(JSON.stringify({ error: 'GitHub Client ID or Secret is not configured in Cloudflare Pages environment variables' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
 
     const response = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
