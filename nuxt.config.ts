@@ -43,11 +43,15 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    // eslint-disable-next-line node/prefer-global/process
+    githubClientSecret: process.env.NUXT_GITHUB_CLIENT_SECRET || '',
     public: {
       // eslint-disable-next-line node/prefer-global/process
       googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '',
       // eslint-disable-next-line node/prefer-global/process
       googleApiKey: process.env.NUXT_PUBLIC_GOOGLE_API_KEY || '',
+      // eslint-disable-next-line node/prefer-global/process
+      githubClientId: process.env.NUXT_PUBLIC_GITHUB_CLIENT_ID || '',
     },
   },
 

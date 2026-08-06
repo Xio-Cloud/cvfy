@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCvState } from '~/data/useCvState'
 import { useGitHubStorage } from '~/composables/useGitHubStorage'
 
 const {
   githubState,
   authenticate,
+  loginWithGitHub,
+  checkGitHubUrlParams,
   createRepo,
   fetchBranches,
   createBranch,
@@ -15,10 +18,12 @@ const {
 } = useGitHubStorage()
 
 const { formSettings } = useCvState()
+const route = useRoute()
 
 // Token Auth Input
 const inputToken = ref('')
 const isAuthLoading = ref(false)
+const showPatInput = ref(false)
 
 // Modals
 const showCreateRepoModal = ref(false)
@@ -41,6 +46,12 @@ const formattedLastCommitted = computed(() => {
   return githubState.lastCommittedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 })
 
+onMounted(() => {
+  if (route.query.code || route.query.github_token) {
+    checkGitHubUrlParams(route.query)
+  }
+})
+
 watch(
   () => githubState.selectedRepo,
   async (newRepo) => {
@@ -59,7 +70,11 @@ watch(
   },
 )
 
-async function handleConnect() {
+function handleOAuthLogin() {
+  loginWithGitHub()
+}
+
+async function handleConnectPAT() {
   if (!inputToken.value.trim())
     return
   isAuthLoading.value = true
@@ -146,34 +161,61 @@ async function handleSelectFile(path: string) {
         v-if="!githubState.user"
         class="flex flex-col gap-2 bg-slate-100 p-3 rounded border border-slate-200"
       >
-        <p class="text-[11px] text-slate-600">
-          Connect GitHub using a Personal Access Token with <code class="bg-slate-200 px-1 rounded">repo</code> scope:
-        </p>
-        <div class="flex gap-2">
-          <input
-            v-model="inputToken"
-            type="password"
-            class="form__control text-xs flex-1"
-            placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-            @keyup.enter="handleConnect"
+        <button
+          type="button"
+          class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2 px-3 rounded flex items-center justify-center gap-2 transition-colors shadow-sm text-xs"
+          :disabled="githubState.isLoading"
+          @click="handleOAuthLogin"
+        >
+          <svg
+            class="w-4 h-4 fill-current text-white"
+            viewBox="0 0 24 24"
           >
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+          </svg>
+          <span>{{ githubState.isLoading ? 'Connecting...' : 'Sign in with GitHub' }}</span>
+        </button>
+
+        <div class="text-center my-0.5">
           <button
             type="button"
-            class="form__btn text-xs px-3 py-1.5 shrink-0"
-            :disabled="isAuthLoading || !inputToken.trim()"
-            @click="handleConnect"
+            class="text-[10px] text-slate-500 hover:text-slate-800 underline"
+            @click="showPatInput = !showPatInput"
           >
-            {{ isAuthLoading ? 'Connecting...' : 'Connect' }}
+            {{ showPatInput ? 'Hide Personal Access Token option' : 'Or connect using Personal Access Token (PAT)' }}
           </button>
         </div>
-        <a
-          href="https://github.com/settings/tokens/new?scopes=repo&description=CvXio+Resume+Storage"
-          target="_blank"
-          rel="noopener"
-          class="text-[10px] text-blue-600 hover:underline"
+
+        <div
+          v-if="showPatInput"
+          class="flex flex-col gap-2 pt-1 border-t border-slate-200"
         >
-          🔑 Create Personal Access Token on GitHub &rarr;
-        </a>
+          <div class="flex gap-2">
+            <input
+              v-model="inputToken"
+              type="password"
+              class="form__control text-xs flex-1"
+              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+              @keyup.enter="handleConnectPAT"
+            >
+            <button
+              type="button"
+              class="form__btn text-xs px-3 py-1.5 shrink-0"
+              :disabled="isAuthLoading || !inputToken.trim()"
+              @click="handleConnectPAT"
+            >
+              Connect
+            </button>
+          </div>
+          <a
+            href="https://github.com/settings/tokens/new?scopes=repo&description=CvXio+Resume+Storage"
+            target="_blank"
+            rel="noopener"
+            class="text-[10px] text-blue-600 hover:underline"
+          >
+            🔑 Create Personal Access Token on GitHub &rarr;
+          </a>
+        </div>
       </div>
 
       <!-- Connected Storage Controls -->

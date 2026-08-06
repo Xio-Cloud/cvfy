@@ -86,6 +86,47 @@ export function useGitHubStorage() {
     }
   }
 
+  function loginWithGitHub() {
+    githubState.error = ''
+    const config = useRuntimeConfig()
+    const clientId = (config.public?.githubClientId as string) || ''
+    if (!clientId) {
+      githubState.error = 'GitHub Client ID not configured. Please set NUXT_PUBLIC_GITHUB_CLIENT_ID or use Personal Access Token below.'
+      return
+    }
+    const redirectUri = window.location.origin + window.location.pathname
+    const scope = 'repo user'
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(redirectUri)}`
+    window.location.href = authUrl
+  }
+
+  async function checkGitHubUrlParams(routeQuery: any) {
+    if (routeQuery.github_token) {
+      await authenticate(routeQuery.github_token)
+      return
+    }
+
+    if (routeQuery.code) {
+      githubState.isLoading = true
+      githubState.error = ''
+      try {
+        const res: any = await $fetch('/api/github/oauth', {
+          method: 'POST',
+          body: { code: routeQuery.code },
+        })
+        if (res?.access_token) {
+          await authenticate(res.access_token)
+        }
+      }
+      catch (err: any) {
+        githubState.error = err?.message || 'Failed to exchange GitHub authorization code'
+      }
+      finally {
+        githubState.isLoading = false
+      }
+    }
+  }
+
   async function fetchGitHub(endpoint: string, options: RequestInit = {}): Promise<any> {
     if (!githubState.token) {
       throw new Error('GitHub token is missing')
@@ -417,6 +458,8 @@ export function useGitHubStorage() {
   return {
     githubState,
     authenticate,
+    loginWithGitHub,
+    checkGitHubUrlParams,
     fetchRepos,
     createRepo,
     fetchBranches,
