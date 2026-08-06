@@ -114,20 +114,9 @@ export function useGitHubStorage() {
       githubState.isLoading = true
       githubState.error = ''
       try {
-        const config = useRuntimeConfig()
-        const clientId = (config.public?.githubClientId as string) || ''
-
-        // Direct Client-side exchange via CORS proxy without server backend
-        const res: any = await $fetch('https://corsproxy.io/?https://github.com/login/oauth/access_token', {
+        const res: any = await $fetch('/api/github/oauth', {
           method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: {
-            client_id: clientId,
-            code: routeQuery.code,
-          },
+          body: { code: routeQuery.code },
         })
 
         if (res?.error) {
