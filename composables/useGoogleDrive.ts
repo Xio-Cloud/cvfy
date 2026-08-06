@@ -45,11 +45,20 @@ export function useGoogleDrive() {
     return JSON.stringify(formSettings.value) !== JSON.stringify(driveState.savedSnapshot)
   }
 
-  // Watch formSettings changes: only set dirty and auto-save if actual data changed
+  // Watch formSettings changes: only auto-save if an active file from Google Drive exists
   watch(
     formSettings,
     () => {
-      if (driveState.activeFileId && (driveState.accessToken || driveState.isSignedIn)) {
+      if (!driveState.activeFileId) {
+        driveState.isDirty = false
+        if (autoSaveTimer) {
+          clearTimeout(autoSaveTimer)
+          autoSaveTimer = null
+        }
+        return
+      }
+
+      if (driveState.accessToken || driveState.isSignedIn) {
         if (hasFormChanged()) {
           driveState.isDirty = true
           if (driveState.autoSaveEnabled) {
@@ -389,6 +398,10 @@ export function useGoogleDrive() {
   }
 
   async function saveToDrive(asNewFile = false, customFileName?: string): Promise<void> {
+    if (!asNewFile && !driveState.activeFileId) {
+      return
+    }
+
     if (autoSaveTimer) {
       clearTimeout(autoSaveTimer)
       autoSaveTimer = null
