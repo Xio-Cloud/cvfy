@@ -147,7 +147,7 @@ useHead({
 
     <!-- Resizer Handle Bar -->
     <div
-      class="resizer-handle hidden lg:flex items-center justify-center w-2 hover:w-3 bg-slate-200 hover:bg-violet-500 cursor-col-resize select-none transition-all duration-150 z-20 group relative shrink-0"
+      class="resizer-handle hidden lg:flex items-center justify-center w-2 hover:w-3 bg-slate-200 hover:bg-violet-500 cursor-col-resize select-none transition-all duration-150 z-10 group relative shrink-0"
       :class="{ 'bg-violet-600 w-3': isResizing }"
       @mousedown="startResizing"
       @touchstart.prevent="startResizing"

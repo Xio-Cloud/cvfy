@@ -385,240 +385,248 @@ async function handleSelectFile(path: string) {
     </div>
 
     <!-- Create Repo Modal -->
-    <div
-      v-if="showCreateRepoModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-    >
-      <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
-        <h3 class="font-bold text-base mb-2">
-          Create New Repository
-        </h3>
-        <p class="text-xs text-slate-600 mb-4">
-          Create a dedicated GitHub repository to store and version control your CVs.
-        </p>
+    <Teleport to="body">
+      <div
+        v-if="showCreateRepoModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      >
+        <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
+          <h3 class="font-bold text-base mb-2">
+            Create New Repository
+          </h3>
+          <p class="text-xs text-slate-600 mb-4">
+            Create a dedicated GitHub repository to store and version control your CVs.
+          </p>
 
-        <div class="mb-3">
-          <label class="block text-xs font-bold mb-1">Repository Name</label>
-          <input
-            v-model="newRepoName"
-            type="text"
-            class="form__control text-xs w-full"
-            placeholder="my-resumes"
-            @keyup.enter="handleConfirmCreateRepo"
-          >
-        </div>
-
-        <div class="mb-4 flex flex-col gap-2">
-          <div class="flex items-center gap-2">
+          <div class="mb-3">
+            <label class="block text-xs font-bold mb-1">Repository Name</label>
             <input
-              id="private-repo"
-              v-model="newRepoPrivate"
-              type="checkbox"
-              class="rounded text-blue-600"
+              v-model="newRepoName"
+              type="text"
+              class="form__control text-xs w-full"
+              placeholder="my-resumes"
+              @keyup.enter="handleConfirmCreateRepo"
             >
-            <label
-              for="private-repo"
-              class="text-xs font-medium cursor-pointer"
-            >
-              Private Repository 🔒
-            </label>
           </div>
 
-          <div class="flex items-center gap-2">
-            <input
-              id="include-skill-repo"
-              v-model="newRepoIncludeSkill"
-              type="checkbox"
-              class="rounded text-blue-600"
-            >
-            <label
-              for="include-skill-repo"
-              class="text-xs font-medium cursor-pointer text-slate-700"
-            >
-              🤖 Include AI Agent Skill (<code class="text-[10px] bg-slate-100 px-1 rounded">.agents/skills/cvxio-json-builder</code>)
-            </label>
-          </div>
-        </div>
+          <div class="mb-4 flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <input
+                id="private-repo"
+                v-model="newRepoPrivate"
+                type="checkbox"
+                class="rounded text-blue-600"
+              >
+              <label
+                for="private-repo"
+                class="text-xs font-medium cursor-pointer"
+              >
+                Private Repository 🔒
+              </label>
+            </div>
 
-        <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            class="form__btn form__btn--ghost text-xs px-3 py-1"
-            @click="showCreateRepoModal = false"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="form__btn text-xs px-3 py-1"
-            :disabled="!newRepoName.trim() || githubState.isLoading"
-            @click="handleConfirmCreateRepo"
-          >
-            {{ githubState.isLoading ? 'Creating...' : 'Create' }}
-          </button>
+            <div class="flex items-center gap-2">
+              <input
+                id="include-skill-repo"
+                v-model="newRepoIncludeSkill"
+                type="checkbox"
+                class="rounded text-blue-600"
+              >
+              <label
+                for="include-skill-repo"
+                class="text-xs font-medium cursor-pointer text-slate-700"
+              >
+                🤖 Include AI Agent Skill (<code class="text-[10px] bg-slate-100 px-1 rounded">.agents/skills/cvxio-json-builder</code>)
+              </label>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <button
+              type="button"
+              class="form__btn form__btn--ghost text-xs px-3 py-1"
+              @click="showCreateRepoModal = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="form__btn text-xs px-3 py-1"
+              :disabled="!newRepoName.trim() || githubState.isLoading"
+              @click="handleConfirmCreateRepo"
+            >
+              {{ githubState.isLoading ? 'Creating...' : 'Create' }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
 
     <!-- Create Branch Modal -->
-    <div
-      v-if="showCreateBranchModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-    >
-      <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
-        <h3 class="font-bold text-base mb-2">
-          Create New Branch
-        </h3>
-        <p class="text-xs text-slate-600 mb-3">
-          Create a new branch off a base branch in <span class="font-bold text-blue-600">{{ githubState.selectedRepo }}</span>:
-        </p>
+    <Teleport to="body">
+      <div
+        v-if="showCreateBranchModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      >
+        <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
+          <h3 class="font-bold text-base mb-2">
+            Create New Branch
+          </h3>
+          <p class="text-xs text-slate-600 mb-3">
+            Create a new branch off a base branch in <span class="font-bold text-blue-600">{{ githubState.selectedRepo }}</span>:
+          </p>
 
-        <div class="mb-3">
-          <label class="block text-xs font-bold mb-1">Branch Off From (Base Branch)</label>
-          <select
-            v-model="baseBranchName"
-            class="form__control text-xs w-full py-1.5"
-          >
-            <option
-              v-for="b in githubState.branches"
-              :key="b.name"
-              :value="b.name"
+          <div class="mb-3">
+            <label class="block text-xs font-bold mb-1">Branch Off From (Base Branch)</label>
+            <select
+              v-model="baseBranchName"
+              class="form__control text-xs w-full py-1.5"
             >
-              🌿 {{ b.name }}
-            </option>
-          </select>
-        </div>
+              <option
+                v-for="b in githubState.branches"
+                :key="b.name"
+                :value="b.name"
+              >
+                🌿 {{ b.name }}
+              </option>
+            </select>
+          </div>
 
-        <div class="mb-4">
-          <label class="block text-xs font-bold mb-1">New Branch Name</label>
-          <input
-            v-model="newBranchName"
-            type="text"
-            class="form__control text-xs w-full"
-            placeholder="cv-2026"
-            @keyup.enter="handleConfirmCreateBranch"
-          >
-        </div>
+          <div class="mb-4">
+            <label class="block text-xs font-bold mb-1">New Branch Name</label>
+            <input
+              v-model="newBranchName"
+              type="text"
+              class="form__control text-xs w-full"
+              placeholder="cv-2026"
+              @keyup.enter="handleConfirmCreateBranch"
+            >
+          </div>
 
-        <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            class="form__btn form__btn--ghost text-xs px-3 py-1"
-            @click="showCreateBranchModal = false"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="form__btn text-xs px-3 py-1"
-            :disabled="!newBranchName.trim() || githubState.isLoading"
-            @click="handleConfirmCreateBranch"
-          >
-            {{ githubState.isLoading ? 'Creating...' : 'Create Branch' }}
-          </button>
+          <div class="flex justify-end gap-2">
+            <button
+              type="button"
+              class="form__btn form__btn--ghost text-xs px-3 py-1"
+              @click="showCreateBranchModal = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="form__btn text-xs px-3 py-1"
+              :disabled="!newBranchName.trim() || githubState.isLoading"
+              @click="handleConfirmCreateBranch"
+            >
+              {{ githubState.isLoading ? 'Creating...' : 'Create Branch' }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
 
     <!-- Commit & Push Modal -->
-    <div
-      v-if="showCommitModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-    >
-      <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
-        <h3 class="font-bold text-base mb-2">
-          Commit & Push to GitHub
-        </h3>
-        <p class="text-xs text-slate-600 mb-4">
-          Target: <span class="font-bold text-blue-600">{{ githubState.selectedRepo }} (🌿 {{ githubState.selectedBranch }})</span>
-        </p>
+    <Teleport to="body">
+      <div
+        v-if="showCommitModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      >
+        <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
+          <h3 class="font-bold text-base mb-2">
+            Commit & Push to GitHub
+          </h3>
+          <p class="text-xs text-slate-600 mb-4">
+            Target: <span class="font-bold text-blue-600">{{ githubState.selectedRepo }} (🌿 {{ githubState.selectedBranch }})</span>
+          </p>
 
-        <div class="mb-3">
-          <label class="block text-xs font-bold mb-1">File Path</label>
-          <input
-            v-model="commitFilePath"
-            type="text"
-            class="form__control text-xs w-full"
-            placeholder="CV_Jane_Doe.json"
-          >
-        </div>
+          <div class="mb-3">
+            <label class="block text-xs font-bold mb-1">File Path</label>
+            <input
+              v-model="commitFilePath"
+              type="text"
+              class="form__control text-xs w-full"
+              placeholder="CV_Jane_Doe.json"
+            >
+          </div>
 
-        <div class="mb-4">
-          <label class="block text-xs font-bold mb-1">Commit Message</label>
-          <input
-            v-model="commitMessage"
-            type="text"
-            class="form__control text-xs w-full"
-            placeholder="feat(cv): update experience and skills"
-            @keyup.enter="handleConfirmCommit"
-          >
-        </div>
+          <div class="mb-4">
+            <label class="block text-xs font-bold mb-1">Commit Message</label>
+            <input
+              v-model="commitMessage"
+              type="text"
+              class="form__control text-xs w-full"
+              placeholder="feat(cv): update experience and skills"
+              @keyup.enter="handleConfirmCommit"
+            >
+          </div>
 
-        <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            class="form__btn form__btn--ghost text-xs px-3 py-1"
-            @click="showCommitModal = false"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="form__btn text-xs px-3 py-1"
-            :disabled="!commitMessage.trim() || !commitFilePath.trim() || githubState.isCommitting"
-            @click="handleConfirmCommit"
-          >
-            {{ githubState.isCommitting ? 'Committing...' : 'Commit & Push' }}
-          </button>
+          <div class="flex justify-end gap-2">
+            <button
+              type="button"
+              class="form__btn form__btn--ghost text-xs px-3 py-1"
+              @click="showCommitModal = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="form__btn text-xs px-3 py-1"
+              :disabled="!commitMessage.trim() || !commitFilePath.trim() || githubState.isCommitting"
+              @click="handleConfirmCommit"
+            >
+              {{ githubState.isCommitting ? 'Committing...' : 'Commit & Push' }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
 
     <!-- Browse Files Modal -->
-    <div
-      v-if="showFilePickerModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-    >
-      <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
-        <h3 class="font-bold text-base mb-2">
-          Select JSON File from GitHub
-        </h3>
-        <p class="text-xs text-slate-600 mb-4">
-          Repo: <span class="font-bold text-blue-600">{{ githubState.selectedRepo }} (🌿 {{ githubState.selectedBranch }})</span>
-        </p>
+    <Teleport to="body">
+      <div
+        v-if="showFilePickerModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      >
+        <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
+          <h3 class="font-bold text-base mb-2">
+            Select JSON File from GitHub
+          </h3>
+          <p class="text-xs text-slate-600 mb-4">
+            Repo: <span class="font-bold text-blue-600">{{ githubState.selectedRepo }} (🌿 {{ githubState.selectedBranch }})</span>
+          </p>
 
-        <div
-          v-if="githubState.files.length === 0"
-          class="text-xs text-slate-500 py-4 text-center border border-dashed rounded mb-4"
-        >
-          No .json files found in this branch.
-        </div>
-        <div
-          v-else
-          class="flex flex-col gap-1.5 max-h-60 overflow-y-auto mb-4 border rounded p-2"
-        >
-          <button
-            v-for="file in githubState.files"
-            :key="file.path"
-            type="button"
-            class="text-left text-xs p-2 rounded hover:bg-slate-100 flex items-center justify-between transition-colors"
-            @click="handleSelectFile(file.path)"
+          <div
+            v-if="githubState.files.length === 0"
+            class="text-xs text-slate-500 py-4 text-center border border-dashed rounded mb-4"
           >
-            <span class="font-medium truncate">📄 {{ file.path }}</span>
-            <span class="text-[10px] text-slate-400 shrink-0">{{ file.size }} bytes</span>
-          </button>
-        </div>
+            No .json files found in this branch.
+          </div>
+          <div
+            v-else
+            class="flex flex-col gap-1.5 max-h-60 overflow-y-auto mb-4 border rounded p-2"
+          >
+            <button
+              v-for="file in githubState.files"
+              :key="file.path"
+              type="button"
+              class="text-left text-xs p-2 rounded hover:bg-slate-100 flex items-center justify-between transition-colors"
+              @click="handleSelectFile(file.path)"
+            >
+              <span class="font-medium truncate">📄 {{ file.path }}</span>
+              <span class="text-[10px] text-slate-400 shrink-0">{{ file.size }} bytes</span>
+            </button>
+          </div>
 
-        <div class="flex justify-end">
-          <button
-            type="button"
-            class="form__btn form__btn--ghost text-xs px-3 py-1"
-            @click="showFilePickerModal = false"
-          >
-            Close
-          </button>
+          <div class="flex justify-end">
+            <button
+              type="button"
+              class="form__btn form__btn--ghost text-xs px-3 py-1"
+              @click="showFilePickerModal = false"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </fieldset>
 </template>

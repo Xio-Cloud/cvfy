@@ -240,47 +240,49 @@ function toggleAutoSave(e: Event) {
     </div>
 
     <!-- Save As File Name Prompt Modal -->
-    <div
-      v-if="showSaveAsModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-    >
-      <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
-        <h3 class="font-bold text-base mb-2">
-          Save As to Google Drive
-        </h3>
-        <p class="text-xs text-slate-600 mb-4">
-          Enter a custom file name to save a copy in your Google Drive's <span class="font-bold text-blue-600">CvXio</span> folder:
-        </p>
+    <Teleport to="body">
+      <div
+        v-if="showSaveAsModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      >
+        <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl text-slate-800 font-normal">
+          <h3 class="font-bold text-base mb-2">
+            Save As to Google Drive
+          </h3>
+          <p class="text-xs text-slate-600 mb-4">
+            Enter a custom file name to save a copy in your Google Drive's <span class="font-bold text-blue-600">CvXio</span> folder:
+          </p>
 
-        <div class="mb-4">
-          <label class="block text-xs font-bold mb-1">File Name</label>
-          <input
-            v-model="saveAsFileName"
-            type="text"
-            class="form__control text-xs w-full"
-            placeholder="CV_John_Doe.json"
-            @keyup.enter="confirmSaveAs"
-          >
-        </div>
+          <div class="mb-4">
+            <label class="block text-xs font-bold mb-1">File Name</label>
+            <input
+              v-model="saveAsFileName"
+              type="text"
+              class="form__control text-xs w-full"
+              placeholder="CV_John_Doe.json"
+              @keyup.enter="confirmSaveAs"
+            >
+          </div>
 
-        <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            class="form__btn form__btn--ghost text-xs px-3 py-1"
-            @click="showSaveAsModal = false"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="form__btn text-xs px-3 py-1"
-            :disabled="!saveAsFileName.trim() || driveState.isSaving"
-            @click="confirmSaveAs"
-          >
-            {{ driveState.isSaving ? 'Saving...' : 'Save' }}
-          </button>
+          <div class="flex justify-end gap-2">
+            <button
+              type="button"
+              class="form__btn form__btn--ghost text-xs px-3 py-1"
+              @click="showSaveAsModal = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="form__btn text-xs px-3 py-1"
+              :disabled="!saveAsFileName.trim() || driveState.isSaving"
+              @click="confirmSaveAs"
+            >
+              {{ driveState.isSaving ? 'Saving...' : 'Save' }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </fieldset>
 </template>
