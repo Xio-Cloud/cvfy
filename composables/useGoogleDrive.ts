@@ -375,7 +375,7 @@ export function useGoogleDrive() {
 
       const data = await response.json()
       if (data && uploadCVData) {
-        uploadCVData(data)
+        uploadCVData(data, true)
         driveState.activeFileId = fileId
         driveState.activeFileName = fileName || `CV_${formSettings.value.name}_${formSettings.value.lastName}.json`
         driveState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))

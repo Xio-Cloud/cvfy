@@ -617,7 +617,7 @@ export function useGitHubStorage() {
       const jsonData = JSON.parse(decodedContent)
 
       if (jsonData && uploadCVData) {
-        uploadCVData(jsonData)
+        uploadCVData(jsonData, true)
         githubState.activeFilePath = filePath
         githubState.activeFileSha = data.sha
         githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))

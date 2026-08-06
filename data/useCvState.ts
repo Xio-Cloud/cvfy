@@ -105,9 +105,17 @@ export function useCvState() {
     ].filter(entry => entry.id !== e.entry.id)
   }
 
-  function uploadCVData(data: any): void {
+  function uploadCVData(data: any, isFromRemote = false): void {
     if (!data)
       return
+
+    if (!isFromRemote) {
+      const { resetActiveFile } = useGoogleDrive()
+      const { resetActiveGitHubFile } = useGitHubStorage()
+      resetActiveFile()
+      resetActiveGitHubFile()
+    }
+
     const formSettingsData = data.formSettings || data
     state.formSettings = {
       ...cvSettingsEmptyTemplate,
@@ -120,11 +128,7 @@ export function useCvState() {
     const fr = new FileReader()
     fr.onload = (e: any) => {
       const data = JSON.parse(e.target.result)
-      const { resetActiveFile } = useGoogleDrive()
-      const { resetActiveGitHubFile } = useGitHubStorage()
-      resetActiveFile()
-      resetActiveGitHubFile()
-      uploadCVData(data)
+      uploadCVData(data, false)
     }
     fr.readAsText(e.target.files[0])
   }
