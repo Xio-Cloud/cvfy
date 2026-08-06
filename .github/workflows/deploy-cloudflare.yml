@@ -32,6 +32,8 @@ jobs:
         env:
           NUXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '276683292647-p2ftu0lnt334848mun93kjohkhl4lfuu.apps.googleusercontent.com' }}
           NUXT_PUBLIC_GOOGLE_API_KEY: ${{ secrets.NUXT_PUBLIC_GOOGLE_API_KEY }}
+          NUXT_PUBLIC_GITHUB_CLIENT_ID: ${{ secrets.NUXT_PUBLIC_GITHUB_CLIENT_ID }}
+          NUXT_GITHUB_CLIENT_SECRET: ${{ secrets.NUXT_GITHUB_CLIENT_SECRET }}
         run: |
           npm run generate || true
           rm -rf dist
