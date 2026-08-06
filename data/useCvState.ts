@@ -119,6 +119,8 @@ export function useCvState() {
     fr.onload = (e: any) => {
       const data = JSON.parse(e.target.result)
       uploadCVData(data)
+      const { resetActiveFile } = useGoogleDrive()
+      resetActiveFile()
     }
     fr.readAsText(e.target.files[0])
   }
@@ -132,12 +134,16 @@ export function useCvState() {
       `cvSettings-${i18n.locale.value}`,
       JSON.stringify(state.formSettings),
     )
+    const { resetActiveFile } = useGoogleDrive()
+    resetActiveFile()
   }
 
   function clearForm(): void {
     state.formSettings = { ...cvSettingsEmptyTemplate }
     normalizeFormSettings(state.formSettings)
     localStorage.removeItem(`cvSettings-${i18n.locale.value}`)
+    const { resetActiveFile } = useGoogleDrive()
+    resetActiveFile()
   }
 
   function changeDisplaySection(e: { sectionName: string, status: boolean }): void {

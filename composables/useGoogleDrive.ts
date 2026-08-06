@@ -492,6 +492,17 @@ export function useGoogleDrive() {
     }
   }
 
+  function resetActiveFile() {
+    driveState.activeFileId = ''
+    driveState.activeFileName = ''
+    driveState.savedSnapshot = null
+    driveState.isDirty = false
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('gdrive_active_file_id')
+      localStorage.removeItem('gdrive_active_file_name')
+    }
+  }
+
   // Handle Google Drive "Open with..." URL parameters (draw.io style ?state=... or ?fileId=...)
   async function checkDriveUrlParams(routeQuery: any) {
     if (routeQuery.fileId) {
@@ -541,6 +552,7 @@ export function useGoogleDrive() {
     loadFileFromDrive,
     saveToDrive,
     undoChanges,
+    resetActiveFile,
     setAutoSave,
     authorizeDrive,
     checkDriveUrlParams,
