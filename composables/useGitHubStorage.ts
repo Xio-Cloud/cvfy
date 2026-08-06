@@ -205,8 +205,7 @@ export function useGitHubStorage() {
       return false
     }
     if (!githubState.savedSnapshot) {
-      githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
-      return false
+      return true
     }
     return JSON.stringify(formSettings.value) !== JSON.stringify(githubState.savedSnapshot)
   }
@@ -215,16 +214,16 @@ export function useGitHubStorage() {
   watch(
     formSettings,
     () => {
-      if (!githubState.activeFilePath || !githubState.token) {
+      if (!githubState.token) {
         githubState.isDirty = false
         return
       }
 
-      if (hasGitHubFormChanged()) {
-        githubState.isDirty = true
+      if (githubState.activeFilePath) {
+        githubState.isDirty = hasGitHubFormChanged()
       }
       else {
-        githubState.isDirty = false
+        githubState.isDirty = true
       }
     },
     { deep: true },
@@ -255,9 +254,14 @@ export function useGitHubStorage() {
       catch {}
     }
 
-    if (githubState.activeFilePath) {
-      githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
-      githubState.isDirty = false
+    if (githubState.token) {
+      if (githubState.activeFilePath) {
+        githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
+        githubState.isDirty = false
+      }
+      else {
+        githubState.isDirty = true
+      }
     }
   }
 
@@ -638,7 +642,22 @@ export function useGitHubStorage() {
   }
 
   async function commitToGitHub(commitMessage: string, customPath?: string): Promise<boolean> {
-    const targetPath = customPath?.trim() || githubState.activeFilePath
+    if (!githubState.token || !githubState.selectedRepo) {
+      githubState.error = 'Please select a repository to commit'
+      return false
+    }
+
+    let targetPath = customPath?.trim() || githubState.activeFilePath
+    if (!targetPath) {
+      const name = formSettings.value.name || 'Untitled'
+      const lastName = formSettings.value.lastName || 'CV'
+      targetPath = `CV_${name}_${lastName}.json`
+    }
+    if (!targetPath.endsWith('.json')) {
+      targetPath += '.json'
+    }
+
+    // Only return early if modifying an active file with no unsaved changes
     if (githubState.activeFilePath && targetPath === githubState.activeFilePath && !githubState.isDirty) {
       return false
     }
@@ -646,31 +665,21 @@ export function useGitHubStorage() {
     githubState.isCommitting = true
     githubState.error = ''
     try {
-      let finalPath = targetPath
-      if (!finalPath) {
-        const name = formSettings.value.name || 'Untitled'
-        const lastName = formSettings.value.lastName || 'CV'
-        finalPath = `CV_${name}_${lastName}.json`
-      }
-      if (!finalPath.endsWith('.json')) {
-        finalPath += '.json'
-      }
-
       const jsonString = JSON.stringify({ formSettings: formSettings.value }, null, 2)
       const base64Content = toBase64(jsonString)
 
       const bodyData: Record<string, any> = {
-        message: commitMessage.trim() || `feat(cv): update ${finalPath}`,
+        message: commitMessage.trim() || `feat(cv): update ${targetPath}`,
         content: base64Content,
-        branch: githubState.selectedBranch,
+        branch: githubState.selectedBranch || 'main',
       }
 
-      if (githubState.activeFilePath === finalPath && githubState.activeFileSha) {
+      if (githubState.activeFilePath === targetPath && githubState.activeFileSha) {
         bodyData.sha = githubState.activeFileSha
       }
       else {
         try {
-          const existing = await fetchGitHub(`/repos/${githubState.selectedRepo}/contents/${finalPath}?ref=${githubState.selectedBranch}`)
+          const existing = await fetchGitHub(`/repos/${githubState.selectedRepo}/contents/${targetPath}?ref=${githubState.selectedBranch || 'main'}`)
           if (existing?.sha) {
             bodyData.sha = existing.sha
           }
@@ -678,19 +687,19 @@ export function useGitHubStorage() {
         catch {}
       }
 
-      const resData = await fetchGitHub(`/repos/${githubState.selectedRepo}/contents/${finalPath}`, {
+      const resData = await fetchGitHub(`/repos/${githubState.selectedRepo}/contents/${targetPath}`, {
         method: 'PUT',
         body: JSON.stringify(bodyData),
       })
 
-      githubState.activeFilePath = finalPath
+      githubState.activeFilePath = targetPath
       githubState.activeFileSha = resData.content?.sha || ''
       githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
       githubState.lastCommittedAt = new Date()
       githubState.isDirty = false
 
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('gh_active_file_path', finalPath)
+        localStorage.setItem('gh_active_file_path', targetPath)
         localStorage.setItem('gh_active_file_sha', githubState.activeFileSha)
       }
 
