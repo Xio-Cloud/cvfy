@@ -120,7 +120,9 @@ export function useCvState() {
       const data = JSON.parse(e.target.result)
       uploadCVData(data)
       const { resetActiveFile } = useGoogleDrive()
+      const { resetActiveGitHubFile } = useGitHubStorage()
       resetActiveFile()
+      resetActiveGitHubFile()
     }
     fr.readAsText(e.target.files[0])
   }
@@ -135,7 +137,9 @@ export function useCvState() {
       JSON.stringify(state.formSettings),
     )
     const { resetActiveFile } = useGoogleDrive()
+    const { resetActiveGitHubFile } = useGitHubStorage()
     resetActiveFile()
+    resetActiveGitHubFile()
   }
 
   function clearForm(): void {
@@ -143,7 +147,9 @@ export function useCvState() {
     normalizeFormSettings(state.formSettings)
     localStorage.removeItem(`cvSettings-${i18n.locale.value}`)
     const { resetActiveFile } = useGoogleDrive()
+    const { resetActiveGitHubFile } = useGitHubStorage()
     resetActiveFile()
+    resetActiveGitHubFile()
   }
 
   function changeDisplaySection(e: { sectionName: string, status: boolean }): void {

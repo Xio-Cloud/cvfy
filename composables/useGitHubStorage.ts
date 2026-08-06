@@ -460,6 +460,17 @@ export function useGitHubStorage() {
     }
   }
 
+  function resetActiveGitHubFile() {
+    githubState.activeFilePath = ''
+    githubState.activeFileSha = ''
+    githubState.savedSnapshot = null
+    githubState.isDirty = false
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('gh_active_file_path')
+      localStorage.removeItem('gh_active_file_sha')
+    }
+  }
+
   // Restore on composable initialization
   loadSavedState()
   if (githubState.token && !githubState.repos.length) {
@@ -478,6 +489,7 @@ export function useGitHubStorage() {
     fetchFiles,
     loadFileFromGitHub,
     commitToGitHub,
+    resetActiveGitHubFile,
     disconnectGitHub,
   }
 }
