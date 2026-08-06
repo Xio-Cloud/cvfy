@@ -230,17 +230,17 @@ export function useGitHubStorage() {
     }
   }
 
-  async function createBranch(newBranchName: string): Promise<boolean> {
+  async function createBranch(newBranchName: string, baseBranchName?: string): Promise<boolean> {
     if (!githubState.selectedRepo)
       return false
     githubState.isLoading = true
     githubState.error = ''
     try {
-      // Find parent branch SHA
-      const currentBranchObj = githubState.branches.find(b => b.name === githubState.selectedBranch)
-      let parentSha = currentBranchObj?.commit.sha
+      const sourceBranch = baseBranchName || githubState.selectedBranch || 'main'
+      const baseBranchObj = githubState.branches.find(b => b.name === sourceBranch)
+      let parentSha = baseBranchObj?.commit.sha
       if (!parentSha) {
-        const repoData = await fetchGitHub(`/repos/${githubState.selectedRepo}/git/ref/heads/${githubState.selectedBranch || 'main'}`)
+        const repoData = await fetchGitHub(`/repos/${githubState.selectedRepo}/git/ref/heads/${sourceBranch}`)
         parentSha = repoData.object.sha
       }
 

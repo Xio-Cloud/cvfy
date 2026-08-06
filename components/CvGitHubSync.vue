@@ -27,6 +27,7 @@ const newRepoPrivate = ref(false)
 
 const showCreateBranchModal = ref(false)
 const newBranchName = ref('')
+const baseBranchName = ref('')
 
 const showCommitModal = ref(false)
 const commitMessage = ref('')
@@ -79,10 +80,16 @@ async function handleConfirmCreateRepo() {
   }
 }
 
+function handleOpenCreateBranchModal() {
+  baseBranchName.value = githubState.selectedBranch || 'main'
+  newBranchName.value = ''
+  showCreateBranchModal.value = true
+}
+
 async function handleConfirmCreateBranch() {
   if (!newBranchName.value.trim())
     return
-  const success = await createBranch(newBranchName.value)
+  const success = await createBranch(newBranchName.value, baseBranchName.value)
   if (success) {
     showCreateBranchModal.value = false
     newBranchName.value = ''
@@ -224,7 +231,7 @@ async function handleSelectFile(path: string) {
             <button
               type="button"
               class="text-blue-600 hover:underline text-[10px]"
-              @click="showCreateBranchModal = true"
+              @click="handleOpenCreateBranchModal"
             >
               + New Branch
             </button>
@@ -371,12 +378,28 @@ async function handleSelectFile(path: string) {
         <h3 class="font-bold text-base mb-2">
           Create New Branch
         </h3>
-        <p class="text-xs text-slate-600 mb-4">
-          Create a new branch off <span class="font-bold text-blue-600">🌿 {{ githubState.selectedBranch }}</span>:
+        <p class="text-xs text-slate-600 mb-3">
+          Create a new branch off a base branch in <span class="font-bold text-blue-600">{{ githubState.selectedRepo }}</span>:
         </p>
 
+        <div class="mb-3">
+          <label class="block text-xs font-bold mb-1">Branch Off From (Base Branch)</label>
+          <select
+            v-model="baseBranchName"
+            class="form__control text-xs w-full py-1.5"
+          >
+            <option
+              v-for="b in githubState.branches"
+              :key="b.name"
+              :value="b.name"
+            >
+              🌿 {{ b.name }}
+            </option>
+          </select>
+        </div>
+
         <div class="mb-4">
-          <label class="block text-xs font-bold mb-1">Branch Name</label>
+          <label class="block text-xs font-bold mb-1">New Branch Name</label>
           <input
             v-model="newBranchName"
             type="text"
