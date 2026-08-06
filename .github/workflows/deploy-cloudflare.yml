@@ -53,4 +53,4 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           npx wrangler pages project create cvfy --production-branch=main || true
-          npx wrangler pages deploy dist --project-name=cvfy --branch=main --commit-dirty=true --functions=functions
+          npx wrangler pages deploy dist --project-name=cvfy --branch=main --commit-dirty=true
