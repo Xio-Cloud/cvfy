@@ -30,6 +30,9 @@ export function useGoogleDrive() {
   const { formSettings, uploadCVData } = useCvState()
   let tokenClient: any = null
 
+  // Restore credentials & access token synchronously upon composable initialization
+  loadSavedCredentials()
+
   // Watch formSettings changes to track unsaved status and trigger Auto-Save
   watch(
     formSettings,
@@ -192,7 +195,11 @@ export function useGoogleDrive() {
     })
   }
 
-  async function authorizeDrive(): Promise<string> {
+  async function authorizeDrive(forcePrompt = false): Promise<string> {
+    loadSavedCredentials()
+    if (!forcePrompt && driveState.accessToken) {
+      return driveState.accessToken
+    }
     await initGoogleDrive()
     return await requestAccessToken()
   }
