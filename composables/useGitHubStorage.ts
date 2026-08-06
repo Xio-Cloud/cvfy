@@ -1,4 +1,5 @@
 import { reactive, watch } from 'vue'
+import { resetActiveDriveFile } from '~/composables/useGoogleDrive'
 import { useCvState } from '~/data/useCvState'
 
 export interface GitHubRepo {
@@ -617,6 +618,7 @@ export function useGitHubStorage() {
       const jsonData = JSON.parse(decodedContent)
 
       if (jsonData && uploadCVData) {
+        resetActiveDriveFile()
         uploadCVData(jsonData, true)
         githubState.activeFilePath = filePath
         githubState.activeFileSha = data.sha
