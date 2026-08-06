@@ -506,6 +506,10 @@ function getCurrentColor(colorValue: string): {
       <CvGoogleDriveSync />
       <!-- GOOGLE DRIVE SYNC -->
 
+      <!-- GITHUB STORAGE SYNC -->
+      <CvGitHubSync />
+      <!-- GITHUB STORAGE SYNC -->
+
       <!-- CTA -->
       <div class="form__section flex flex-col p-6 gap-3">
         <button
