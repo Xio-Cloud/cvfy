@@ -118,13 +118,18 @@ export function useGitHubStorage() {
           method: 'POST',
           body: { code: routeQuery.code },
         })
+
+        if (res?.error) {
+          throw new Error(res.error_description || res.error)
+        }
+
         if (res?.access_token) {
           await authenticate(res.access_token)
           return true
         }
       }
       catch (err: any) {
-        githubState.error = err?.message || 'Failed to exchange GitHub authorization code'
+        githubState.error = err?.data?.message || err?.message || 'Failed to exchange GitHub authorization code'
       }
       finally {
         githubState.isLoading = false
