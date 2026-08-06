@@ -493,6 +493,10 @@ export function useGoogleDrive() {
   }
 
   function resetActiveFile() {
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer)
+      autoSaveTimer = null
+    }
     driveState.activeFileId = ''
     driveState.activeFileName = ''
     driveState.savedSnapshot = null

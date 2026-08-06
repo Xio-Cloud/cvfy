@@ -205,7 +205,8 @@ export function useGitHubStorage() {
       return false
     }
     if (!githubState.savedSnapshot) {
-      return true
+      githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
+      return false
     }
     return JSON.stringify(formSettings.value) !== JSON.stringify(githubState.savedSnapshot)
   }
@@ -255,13 +256,8 @@ export function useGitHubStorage() {
     }
 
     if (githubState.token) {
-      if (githubState.activeFilePath) {
-        githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
-        githubState.isDirty = false
-      }
-      else {
-        githubState.isDirty = true
-      }
+      githubState.savedSnapshot = null
+      githubState.isDirty = !githubState.activeFilePath
     }
   }
 

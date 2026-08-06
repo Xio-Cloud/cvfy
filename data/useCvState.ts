@@ -79,13 +79,15 @@ export function useCvState() {
     }
     else {
       state.formSettings[e.skillType] = [
-        ...state.formSettings[e.skillType].filter(skill => skill !== e.skill),
+        ...state.formSettings[e.skillType].filter(
+          skill => skill !== e.skill,
+        ),
       ]
     }
   }
 
   function addEntry(e: { sectionName: SectionName }) {
-    state.formSettings[e.sectionName].unshift({
+    state.formSettings[e.sectionName].push({
       id: crypto.randomUUID(),
       title: '',
       location: '',
@@ -118,16 +120,20 @@ export function useCvState() {
     const fr = new FileReader()
     fr.onload = (e: any) => {
       const data = JSON.parse(e.target.result)
-      uploadCVData(data)
       const { resetActiveFile } = useGoogleDrive()
       const { resetActiveGitHubFile } = useGitHubStorage()
       resetActiveFile()
       resetActiveGitHubFile()
+      uploadCVData(data)
     }
     fr.readAsText(e.target.files[0])
   }
 
   function resetForm(): void {
+    const { resetActiveFile } = useGoogleDrive()
+    const { resetActiveGitHubFile } = useGitHubStorage()
+    resetActiveFile()
+    resetActiveGitHubFile()
     state.formSettings = {
       ...cvSettingTemplate,
     }
@@ -136,20 +142,16 @@ export function useCvState() {
       `cvSettings-${i18n.locale.value}`,
       JSON.stringify(state.formSettings),
     )
-    const { resetActiveFile } = useGoogleDrive()
-    const { resetActiveGitHubFile } = useGitHubStorage()
-    resetActiveFile()
-    resetActiveGitHubFile()
   }
 
   function clearForm(): void {
-    state.formSettings = { ...cvSettingsEmptyTemplate }
-    normalizeFormSettings(state.formSettings)
-    localStorage.removeItem(`cvSettings-${i18n.locale.value}`)
     const { resetActiveFile } = useGoogleDrive()
     const { resetActiveGitHubFile } = useGitHubStorage()
     resetActiveFile()
     resetActiveGitHubFile()
+    state.formSettings = { ...cvSettingsEmptyTemplate }
+    normalizeFormSettings(state.formSettings)
+    localStorage.removeItem(`cvSettings-${i18n.locale.value}`)
   }
 
   function changeDisplaySection(e: { sectionName: string, status: boolean }): void {
