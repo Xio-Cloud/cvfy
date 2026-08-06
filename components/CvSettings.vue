@@ -154,7 +154,7 @@ function getCurrentColor(colorValue: string): {
       </span>
     </h2>
     <form
-      class="form mb-10"
+      class="form mb-10 min-w-0 overflow-x-hidden"
       autocomplete="on"
     >
       <div class="form__section px-6 py-3">
@@ -667,7 +667,7 @@ function getCurrentColor(colorValue: string): {
 
 <style lang="postcss" scoped>
 .settings {
-  @apply bg-slate-50 bg-opacity-100 shadow-lg font-bold z-10;
+  @apply bg-slate-50 bg-opacity-100 shadow-lg font-bold z-10 overflow-x-hidden min-w-0;
 
   @media screen and (min-width: 1024px) {
     & {
