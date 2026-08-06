@@ -41,6 +41,162 @@ const githubState = reactive({
   savedSnapshot: null as any,
 })
 
+const SKILL_MARKDOWN = `---
+name: cvxio-json-builder
+description: Instructions and schema specifications for AI agents to convert Markdown CVs or raw resume text into valid CvXio JSON format suitable for direct import. Use when asked to convert resumes into CvXio JSON or build CvXio-compatible JSON files.
+---
+
+# CvXio JSON Builder Skill
+
+This skill guides AI agents on how to parse Markdown CVs, resumes, or unformatted candidate profiles into a fully valid \`CvXio\` JSON structure that can be imported directly into the application at \`/create\` via **Upload CV settings (JSON)**.
+
+---
+
+## 1. Top-Level JSON Wrapper
+
+All CV data MUST be wrapped inside a top-level \`"formSettings"\` key:
+
+\`\`\`json
+{
+  "formSettings": {
+    "name": "Jane"
+  }
+}
+\`\`\`
+
+---
+
+## 2. Complete Schema Specification
+
+### 2.1 Profile & Contact Fields
+| Key | Type | Default / Required | Description |
+| :--- | :--- | :--- | :--- |
+| \`name\` | \`string\` | Required | First name of the candidate |
+| \`lastName\` | \`string\` | Required | Last / Family name of the candidate |
+| \`jobTitle\` | \`string\` | Required | Target position or current title |
+| \`email\` | \`string\` | Required | Candidate's email address |
+| \`location\` | \`string\` | Required | City, State/Country |
+| \`phoneNumber\` | \`string\` | Required | Phone number |
+| \`aboutme\` | \`string\` | Required | Summary/Objective paragraph (Markdown supported) |
+| \`profileImageDataUri\` | \`string \\| null\` | \`null\` | Base64 Data URI or image path |
+
+### 2.2 Social Links
+| Key | Type | Default | Example |
+| :--- | :--- | :--- | :--- |
+| \`linkedin\` | \`string\` | \`""\` | \`truongthanhquan\` |
+| \`github\` | \`string\` | \`""\` | \`Xio-Cloud\` |
+| \`twitter\` | \`string\` | \`""\` | \`username\` |
+| \`website\` | \`string\` | \`""\` | \`cv.xio.vn\` |
+
+### 2.3 Skills, Languages & Interests
+| Key | Type | Details |
+| :--- | :--- | :--- |
+| \`jobSkills\` | \`string[]\` | Technical/Hard skills (e.g. \`["PHP", "Vue 3", "TypeScript"]\`) |
+| \`softSkills\` | \`string[]\` | Personal/Leadership skills (e.g. \`["Leadership", "Mentoring"]\`) |
+| \`languages\` | \`Array<{lang: string, level: Level}>\` | \`level\` MUST be one of: \`elementary\`, \`limited-working\`, \`professional-working\`, \`full-professional\`, \`native-bilingual\` |
+| \`interests\` | \`string[]\` | Hobbies or areas of interest |
+
+### 2.4 Event Entries (\`work\`, \`education\`, \`projects\`)
+Arrays containing experience, education, or project objects with the following schema:
+
+\`\`\`typescript
+interface CvEvent {
+  id: string // Unique ID (e.g., "work-1", "edu-1")
+  title: string // Role title, degree name, or project title
+  location: string // Company name, university name, or project link
+  from: string // ISO Date string ("YYYY-MM-DDTHH:mm:ss.sssZ")
+  to: string // ISO Date string ("YYYY-MM-DDTHH:mm:ss.sssZ")
+  current: boolean // true if currently active/ongoing
+  displayDate: boolean // true to show dates on CV (default: true)
+  summary: string // Markdown formatted description and bullet points
+}
+\`\`\`
+
+### 2.5 Display Controls & Layout Defaults
+Always include these standard display toggles in \`formSettings\`:
+
+\`\`\`json
+{
+  "layout": "two-column",
+  "activeColor": "#5B21B6",
+  "displayAbout": true,
+  "displaySkills": true,
+  "displayJobSkills": true,
+  "displaySoftSkills": true,
+  "displayLanguages": true,
+  "displayInterests": true,
+  "displaySocial": true,
+  "displayWork": true,
+  "displayEducation": true,
+  "displayProjects": true,
+  "sectionOrder": ["about", "skills", "work", "education", "projects", "social"]
+}
+\`\`\`
+
+---
+
+## 3. Conversion Instructions for AI Agents
+
+When converting input text or Markdown to CvXio JSON:
+
+1. **Date Parsing**:
+   - Convert all dates to UTC ISO strings: \`new Date("2020-01-01").toISOString()\` -> \`"2020-01-01T00:00:00.000Z"\`.
+   - If a position is ongoing ("Present" or "Current"), set \`current: true\` and set \`to\` to the current UTC ISO date.
+
+2. **Bullet Points & Markdown**:
+   - Format \`summary\` strings using Markdown lists (\`- Bullet point\`) and bold text (\`**Header**\`).
+   - Use \`\\n\` line breaks to separate paragraphs and bullet lists inside JSON strings.
+
+3. **Language Levels Mapping**:
+   - Native / Bilingual -> \`"native-bilingual"\`
+   - Fluent / Full Professional -> \`"full-professional"\`
+   - Advanced / Professional Working -> \`"professional-working"\`
+   - Intermediate / Limited Working -> \`"limited-working"\`
+   - Beginner / Elementary -> \`"elementary"\`
+
+4. **Clean IDs**:
+   - Assign unique string IDs to each item in \`work\`, \`education\`, and \`projects\` (e.g. \`"work-1"\`, \`"work-2"\`, \`"edu-1"\`).
+
+---
+
+## 4. Verification Check
+
+Before outputting JSON, ensure:
+- Root object has key \`"formSettings"\`.
+- All \`from\` and \`to\` properties are valid ISO date strings.
+- All language levels match one of the 5 allowed enum values.
+- Array fields (\`jobSkills\`, \`softSkills\`, \`work\`, \`education\`, \`projects\`) are non-null arrays.
+`
+
+function generateReadmeContent(repoName: string, hasSkill: boolean): string {
+  return `# ${repoName} 📄
+
+This repository stores and version-controls resume files created with **[CvXio](https://cv.xio.vn)**.
+
+---
+
+## 🚀 How to Use with CvXio
+
+1. Open the **[CvXio Editor](https://cv.xio.vn/create)**.
+2. Sign in with GitHub under **GitHub Storage**.
+3. Select this repository (\`${repoName}\`) and target branch.
+4. Load, edit, or commit your resumes with custom commit messages directly to GitHub.
+
+---
+
+## 🤖 AI Agent Integration
+
+${hasSkill ? `This repository includes an AI Agent Skill at \`.agents/skills/cvxio-json-builder/SKILL.md\`.` : `To add AI Agent skills to this repository, click **➕ Add AI Agent Skill** in the CvXio GitHub panel.`}
+
+When using AI coding assistants (such as **Antigravity**, **Cursor**, **GitHub Copilot Workspace**, **Claude Code**, or **Windsurf**):
+
+1. Open this repository in your AI coding assistant.
+2. Ask your AI agent:
+   > *"Read my resume text or LinkedIn profile and generate a new CvXio JSON resume file \`CV_Jane_Doe.json\` in this repository."*
+3. The AI agent will automatically detect \`.agents/skills/cvxio-json-builder/SKILL.md\` and output a fully valid CvXio JSON file ready to load directly into **[cv.xio.vn](https://cv.xio.vn)**.
+`
+}
+
 export function useGitHubStorage() {
   const { formSettings, uploadCVData } = useCvState()
 
@@ -222,7 +378,72 @@ export function useGitHubStorage() {
     }
   }
 
-  async function createRepo(repoName: string, isPrivate = false): Promise<boolean> {
+  async function addAiSkillToRepo(targetRepo?: string, targetBranch?: string): Promise<boolean> {
+    const repo = targetRepo || githubState.selectedRepo
+    const branch = targetBranch || githubState.selectedBranch || 'main'
+    if (!repo)
+      return false
+
+    githubState.isLoading = true
+    githubState.error = ''
+    try {
+      const skillPath = '.agents/skills/cvxio-json-builder/SKILL.md'
+      const base64Skill = toBase64(SKILL_MARKDOWN)
+
+      const bodyData: Record<string, any> = {
+        message: 'feat(ai): add cvxio-json-builder AI Agent skill',
+        content: base64Skill,
+        branch,
+      }
+
+      try {
+        const existing = await fetchGitHub(`/repos/${repo}/contents/${skillPath}?ref=${branch}`)
+        if (existing?.sha) {
+          bodyData.sha = existing.sha
+        }
+      }
+      catch {}
+
+      await fetchGitHub(`/repos/${repo}/contents/${skillPath}`, {
+        method: 'PUT',
+        body: JSON.stringify(bodyData),
+      })
+
+      // Update README.md
+      const repoNameOnly = repo.split('/')[1] || repo
+      const readmePath = 'README.md'
+      const base64Readme = toBase64(generateReadmeContent(repoNameOnly, true))
+      const readmeBody: Record<string, any> = {
+        message: 'docs: update README with CvXio AI Agent instructions',
+        content: base64Readme,
+        branch,
+      }
+      try {
+        const existingReadme = await fetchGitHub(`/repos/${repo}/contents/${readmePath}?ref=${branch}`)
+        if (existingReadme?.sha) {
+          readmeBody.sha = existingReadme.sha
+        }
+      }
+      catch {}
+
+      await fetchGitHub(`/repos/${repo}/contents/${readmePath}`, {
+        method: 'PUT',
+        body: JSON.stringify(readmeBody),
+      })
+
+      await fetchFiles()
+      return true
+    }
+    catch (err: any) {
+      githubState.error = err?.message || 'Failed to add AI Agent skill to repository'
+      return false
+    }
+    finally {
+      githubState.isLoading = false
+    }
+  }
+
+  async function createRepo(repoName: string, isPrivate = false, includeSkill = true): Promise<boolean> {
     githubState.isLoading = true
     githubState.error = ''
     try {
@@ -241,6 +462,31 @@ export function useGitHubStorage() {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('gh_selected_repo', data.full_name)
         localStorage.setItem('gh_selected_branch', githubState.selectedBranch)
+      }
+
+      if (includeSkill) {
+        await addAiSkillToRepo(data.full_name, data.default_branch || 'main')
+      }
+      else {
+        // Create clean README without skill text
+        const readmePath = 'README.md'
+        const base64Readme = toBase64(generateReadmeContent(repoName.trim(), false))
+        const readmeBody: Record<string, any> = {
+          message: 'docs: add README with CvXio instructions',
+          content: base64Readme,
+          branch: data.default_branch || 'main',
+        }
+        try {
+          const existingReadme = await fetchGitHub(`/repos/${data.full_name}/contents/${readmePath}?ref=${data.default_branch || 'main'}`)
+          if (existingReadme?.sha) {
+            readmeBody.sha = existingReadme.sha
+          }
+        }
+        catch {}
+        await fetchGitHub(`/repos/${data.full_name}/contents/${readmePath}`, {
+          method: 'PUT',
+          body: JSON.stringify(readmeBody),
+        })
       }
 
       await fetchRepos()
@@ -438,6 +684,17 @@ export function useGitHubStorage() {
     }
   }
 
+  function resetActiveGitHubFile() {
+    githubState.activeFilePath = ''
+    githubState.activeFileSha = ''
+    githubState.savedSnapshot = null
+    githubState.isDirty = false
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('gh_active_file_path')
+      localStorage.removeItem('gh_active_file_sha')
+    }
+  }
+
   function disconnectGitHub() {
     githubState.token = ''
     githubState.user = null
@@ -460,17 +717,6 @@ export function useGitHubStorage() {
     }
   }
 
-  function resetActiveGitHubFile() {
-    githubState.activeFilePath = ''
-    githubState.activeFileSha = ''
-    githubState.savedSnapshot = null
-    githubState.isDirty = false
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('gh_active_file_path')
-      localStorage.removeItem('gh_active_file_sha')
-    }
-  }
-
   // Restore on composable initialization
   loadSavedState()
   if (githubState.token && !githubState.repos.length) {
@@ -484,6 +730,7 @@ export function useGitHubStorage() {
     checkGitHubUrlParams,
     fetchRepos,
     createRepo,
+    addAiSkillToRepo,
     fetchBranches,
     createBranch,
     fetchFiles,

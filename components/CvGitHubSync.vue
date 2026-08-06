@@ -10,6 +10,7 @@ const {
   loginWithGitHub,
   checkGitHubUrlParams,
   createRepo,
+  addAiSkillToRepo,
   fetchBranches,
   createBranch,
   loadFileFromGitHub,
@@ -29,6 +30,7 @@ const showPatInput = ref(false)
 const showCreateRepoModal = ref(false)
 const newRepoName = ref('')
 const newRepoPrivate = ref(false)
+const newRepoIncludeSkill = ref(true)
 
 const showCreateBranchModal = ref(false)
 const newBranchName = ref('')
@@ -88,11 +90,15 @@ async function handleConnectPAT() {
 async function handleConfirmCreateRepo() {
   if (!newRepoName.value.trim())
     return
-  const success = await createRepo(newRepoName.value, newRepoPrivate.value)
+  const success = await createRepo(newRepoName.value, newRepoPrivate.value, newRepoIncludeSkill.value)
   if (success) {
     showCreateRepoModal.value = false
     newRepoName.value = ''
   }
+}
+
+async function handleAddSkillToRepo() {
+  await addAiSkillToRepo()
 }
 
 function handleOpenCreateBranchModal() {
@@ -319,26 +325,39 @@ async function handleSelectFile(path: string) {
           </span>
         </div>
 
-        <!-- Action Buttons: Open & Commit & Push -->
-        <div class="grid grid-cols-2 gap-1.5">
-          <button
-            type="button"
-            class="form__btn form__btn--ghost flex items-center justify-center gap-1 py-1.5 text-xs"
-            :disabled="githubState.isLoading"
-            @click="showFilePickerModal = true"
-          >
-            <span>📁</span>
-            <span>Browse Files</span>
-          </button>
+        <!-- Action Buttons: Open & Commit & Push & AI Skill -->
+        <div class="flex flex-col gap-1.5">
+          <div class="grid grid-cols-2 gap-1.5">
+            <button
+              type="button"
+              class="form__btn form__btn--ghost flex items-center justify-center gap-1 py-1.5 text-xs"
+              :disabled="githubState.isLoading"
+              @click="showFilePickerModal = true"
+            >
+              <span>📁</span>
+              <span>Browse Files</span>
+            </button>
+
+            <button
+              type="button"
+              class="form__btn flex items-center justify-center gap-1 py-1.5 text-xs"
+              :disabled="githubState.isCommitting"
+              @click="handleOpenCommitModal"
+            >
+              <span>🚀</span>
+              <span>Commit & Push</span>
+            </button>
+          </div>
 
           <button
             type="button"
-            class="form__btn flex items-center justify-center gap-1 py-1.5 text-xs"
-            :disabled="githubState.isCommitting"
-            @click="handleOpenCommitModal"
+            class="form__btn form__btn--ghost flex items-center justify-center gap-1 py-1 text-[11px] text-slate-700"
+            :disabled="githubState.isLoading || !githubState.selectedRepo"
+            title="Add AI Agent Skill to this repository (.agents/skills/cvxio-json-builder)"
+            @click="handleAddSkillToRepo"
           >
-            <span>🚀</span>
-            <span>Commit & Push</span>
+            <span>🤖</span>
+            <span>Add AI Agent Skill to Repo</span>
           </button>
         </div>
       </template>
@@ -376,19 +395,36 @@ async function handleSelectFile(path: string) {
           >
         </div>
 
-        <div class="mb-4 flex items-center gap-2">
-          <input
-            id="private-repo"
-            v-model="newRepoPrivate"
-            type="checkbox"
-            class="rounded text-blue-600"
-          >
-          <label
-            for="private-repo"
-            class="text-xs font-medium cursor-pointer"
-          >
-            Private Repository 🔒
-          </label>
+        <div class="mb-4 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <input
+              id="private-repo"
+              v-model="newRepoPrivate"
+              type="checkbox"
+              class="rounded text-blue-600"
+            >
+            <label
+              for="private-repo"
+              class="text-xs font-medium cursor-pointer"
+            >
+              Private Repository 🔒
+            </label>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input
+              id="include-skill-repo"
+              v-model="newRepoIncludeSkill"
+              type="checkbox"
+              class="rounded text-blue-600"
+            >
+            <label
+              for="include-skill-repo"
+              class="text-xs font-medium cursor-pointer text-slate-700"
+            >
+              🤖 Include AI Agent Skill (<code class="text-[10px] bg-slate-100 px-1 rounded">.agents/skills/cvxio-json-builder</code>)
+            </label>
+          </div>
         </div>
 
         <div class="flex justify-end gap-2">
