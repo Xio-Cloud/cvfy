@@ -3,6 +3,8 @@ import {
   cvSettingTemplate,
   cvSettingsEmptyTemplate,
 } from './example-cv-settings'
+import { resetActiveDriveFile } from '~/composables/useGoogleDrive'
+import { resetActiveGitHubFile } from '~/composables/useGitHubStorage'
 import {
   CV_PARTS,
   type Cv,
@@ -110,9 +112,7 @@ export function useCvState() {
       return
 
     if (!isFromRemote) {
-      const { resetActiveFile } = useGoogleDrive()
-      const { resetActiveGitHubFile } = useGitHubStorage()
-      resetActiveFile()
+      resetActiveDriveFile()
       resetActiveGitHubFile()
     }
 
@@ -134,9 +134,7 @@ export function useCvState() {
   }
 
   function resetForm(): void {
-    const { resetActiveFile } = useGoogleDrive()
-    const { resetActiveGitHubFile } = useGitHubStorage()
-    resetActiveFile()
+    resetActiveDriveFile()
     resetActiveGitHubFile()
     state.formSettings = {
       ...cvSettingTemplate,
@@ -149,9 +147,7 @@ export function useCvState() {
   }
 
   function clearForm(): void {
-    const { resetActiveFile } = useGoogleDrive()
-    const { resetActiveGitHubFile } = useGitHubStorage()
-    resetActiveFile()
+    resetActiveDriveFile()
     resetActiveGitHubFile()
     state.formSettings = { ...cvSettingsEmptyTemplate }
     normalizeFormSettings(state.formSettings)

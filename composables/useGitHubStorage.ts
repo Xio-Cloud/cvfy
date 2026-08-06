@@ -719,7 +719,7 @@ export function useGitHubStorage() {
     }
   }
 
-  function resetActiveGitHubFile() {
+  export function resetActiveGitHubFile() {
     githubState.activeFilePath = ''
     githubState.activeFileSha = ''
     githubState.savedSnapshot = null

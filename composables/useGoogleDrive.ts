@@ -518,7 +518,7 @@ export function useGoogleDrive() {
     }
   }
 
-  function resetActiveFile() {
+  export function resetActiveDriveFile() {
     if (autoSaveTimer) {
       clearTimeout(autoSaveTimer)
       autoSaveTimer = null
@@ -582,7 +582,7 @@ export function useGoogleDrive() {
     loadFileFromDrive,
     saveToDrive,
     undoChanges,
-    resetActiveFile,
+    resetActiveFile: resetActiveDriveFile,
     setAutoSave,
     authorizeDrive,
     checkDriveUrlParams,
