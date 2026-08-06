@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
 import { CV_PARTS, type CvPart, SectionNameList } from '~/types/cvxio'
 import { useCvState } from '~/data/useCvState'
 
@@ -44,6 +45,58 @@ const sectionLabels: Record<CvPart, string> = {
 }
 
 const orderedSections = computed(() => formSettings.value.sectionOrder ?? [...CV_PARTS])
+
+// Drag and drop state
+const draggedSection = ref<CvPart | null>(null)
+const dragOverSection = ref<CvPart | null>(null)
+
+function onDragStart(section: CvPart, event: DragEvent) {
+  draggedSection.value = section
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', section)
+  }
+}
+
+function onDragOver(section: CvPart, event: DragEvent) {
+  event.preventDefault()
+  if (draggedSection.value && draggedSection.value !== section) {
+    dragOverSection.value = section
+  }
+}
+
+function onDragLeave(section: CvPart) {
+  if (dragOverSection.value === section) {
+    dragOverSection.value = null
+  }
+}
+
+function onDrop(section: CvPart, event: DragEvent) {
+  event.preventDefault()
+  const source = draggedSection.value
+  const target = section
+  if (source && target && source !== target) {
+    reorderSection(source, target)
+  }
+  draggedSection.value = null
+  dragOverSection.value = null
+}
+
+function onDragEnd() {
+  draggedSection.value = null
+  dragOverSection.value = null
+}
+
+function reorderSection(source: CvPart, target: CvPart) {
+  const currentOrder = [...orderedSections.value]
+  const sourceIdx = currentOrder.indexOf(source)
+  const targetIdx = currentOrder.indexOf(target)
+  if (sourceIdx !== -1 && targetIdx !== -1) {
+    currentOrder.splice(sourceIdx, 1)
+    currentOrder.splice(targetIdx, 0, source)
+    formSettings.value.sectionOrder = currentOrder
+  }
+}
 
 watch(
   () => formSettings.value,
@@ -212,295 +265,327 @@ function getCurrentColor(colorValue: string): {
       </fieldset>
       <!-- COLOR THEME -->
 
-      <!-- PERSONAL DETAILS -->
-      <fieldset class="form__section">
-        <expansion-panel :panel-name="$t('personal-details')">
-          <template #title>
-            <legend class="form__legend">
-              {{ $t("personal-details") }}
-            </legend>
-          </template>
-          <template #content>
-            <div class="grid grid-cols-2 gap-x-3 gap-y-10">
-              <div class="form__group col-span-full">
-                <span class="form__label">📷 {{ $t("profile-image") }} </span>
-                <CvProfileImageUploader
-                  v-model="formSettings.profileImageDataUri"
-                />
-              </div>
-              <div class="form__group col-span-full">
-                <label
-                  class="form__label"
-                  for="job-pos"
-                >💼 {{ $t("job-title") }}</label>
-                <input
-                  id="job-pos"
-                  v-model="formSettings.jobTitle"
-                  class="form__control"
-                  type="text"
-                >
-              </div>
-              <div class="form__group">
-                <label
-                  class="form__label"
-                  for="first-name"
-                >👤 {{ $t("first-name") }}</label>
-                <input
-                  id="first-name"
-                  v-model="formSettings.name"
-                  class="form__control"
-                  type="text"
-                >
-              </div>
-              <div class="form__group">
-                <label
-                  class="form__label"
-                  for="last-name"
-                >👤 {{ $t("last-name") }}</label>
-                <input
-                  id="last-name"
-                  v-model="formSettings.lastName"
-                  class="form__control"
-                  type="text"
-                >
-              </div>
-              <div class="form__group col-span-full">
-                <label
-                  class="form__label"
-                  for="email"
-                >✉️ {{ $t("email") }}</label>
-                <input
-                  id="email"
-                  v-model="formSettings.email"
-                  class="form__control"
-                  type="email"
-                >
-              </div>
-              <div class="form__group">
-                <label
-                  class="form__label"
-                  for="location"
-                >📍 {{ $t("location") }}</label>
-                <input
-                  id="location"
-                  v-model="formSettings.location"
-                  class="form__control"
-                  type="text"
-                >
-              </div>
-              <div class="form__group">
-                <label
-                  class="form__label"
-                  for="phone"
-                >📱 {{ $t("phone-number") }}</label>
-                <input
-                  id="phone"
-                  v-model="formSettings.phoneNumber"
-                  class="form__control"
-                  type="tel"
-                >
-              </div>
-              <div class="form__group col-span-full">
-                <label
-                  class="form__label"
-                  for="aboutme"
-                >🌟 {{ $t("about-me") }}</label>
-                <CvDisplayCheckbox
-                  class="mb-2"
-                  :display-section="Boolean(formSettings.displayAbout)"
-                  section-name="about"
-                />
-                <CvTextEditor
-                  id="aboutme"
-                  v-model="formSettings.aboutme"
-                  class="mt-2"
-                />
-              </div>
-            </div>
-          </template>
-        </expansion-panel>
-      </fieldset>
-      <!-- PERSONAL DETAILS -->
+      <!-- DYNAMIC REORDERABLE SECTIONS -->
+      <div
+        v-for="(section, index) in orderedSections"
+        :key="section"
+        draggable="true"
+        class="transition-all duration-200"
+        :class="{
+          'opacity-40': draggedSection === section,
+          'ring-2 ring-violet-500 bg-violet-50/50 rounded': dragOverSection === section,
+        }"
+        @dragstart="onDragStart(section, $event)"
+        @dragover="onDragOver(section, $event)"
+        @dragleave="onDragLeave(section)"
+        @drop="onDrop(section, $event)"
+        @dragend="onDragEnd"
+      >
+        <!-- Reorder Handle & Section Header -->
+        <div class="flex items-center justify-between px-6 pt-3 pb-1 text-slate-400 bg-slate-100/60 border-t border-slate-200/80">
+          <div class="flex items-center gap-1.5 cursor-grab active:cursor-grabbing text-xs select-none">
+            <span class="text-base font-bold text-slate-400 hover:text-slate-600">⋮⋮</span>
+            <span class="text-[11px] font-bold tracking-wider uppercase text-slate-500">{{ $t(sectionLabels[section]) }}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              class="px-1.5 py-0.5 hover:bg-slate-200 rounded text-[11px] font-bold text-slate-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+              :disabled="index === 0"
+              title="Move Section Up"
+              @click.stop="moveSection({ section, direction: 'up' })"
+            >
+              ▲
+            </button>
+            <button
+              type="button"
+              class="px-1.5 py-0.5 hover:bg-slate-200 rounded text-[11px] font-bold text-slate-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+              :disabled="index === orderedSections.length - 1"
+              title="Move Section Down"
+              @click.stop="moveSection({ section, direction: 'down' })"
+            >
+              ▼
+            </button>
+          </div>
+        </div>
 
-      <!-- SKILLS -->
-      <fieldset class="form__section grid gap-3">
-        <expansion-panel :panel-name="$t('skills')">
-          <template #title>
-            <legend class="form__legend">
-              {{ $t("skills") }}
-            </legend>
-          </template>
-          <template #content>
-            <div>
-              <CvDisplayCheckbox
-                class="mb-10"
-                :display-section="Boolean(formSettings.displaySkills)"
-                section-name="skills"
-              />
-              <CvInputTags
-                v-model="formSettings.jobSkills"
-                tag-list-name="jobSkills"
-                :tag-list-label="`🛠 ${$t('technical-skills')}`"
-                :display="Boolean(formSettings.displayJobSkills)"
-              />
-              <CvInputTags
-                v-model="formSettings.softSkills"
-                tag-list-name="softSkills"
-                :tag-list-label="`🧸 ${$t('soft-skills')}`"
-                :display="Boolean(formSettings.displaySoftSkills)"
-              />
-              <CvInputTags
-                v-model="formSettings.languages"
-                tag-list-name="languages"
-                :tag-list-label="`🌎 ${$t('languages')}`"
-                :display="Boolean(formSettings.displayLanguages)"
-              />
-              <CvInputTags
-                v-model="formSettings.interests"
-                tag-list-name="interests"
-                :tag-list-label="`🧸 ${$t('interests')}`"
-                :display="Boolean(formSettings.displayInterests)"
-              />
-            </div>
-          </template>
-        </expansion-panel>
-      </fieldset>
-      <!-- SKILLS -->
-
-      <!-- SOCIAL -->
-      <fieldset class="form__section grid gap-3">
-        <expansion-panel :panel-name="$t('social')">
-          <template #title>
-            <legend class="form__legend">
-              {{ $t("social") }}
-            </legend>
-          </template>
-          <template #content>
-            <div>
-              <CvDisplayCheckbox
-                class="form__display-checkbox mb-10"
-                :display-section="formSettings.displaySocial"
-                section-name="social"
-              />
+        <!-- PERSONAL DETAILS (about) -->
+        <fieldset
+          v-if="section === 'about'"
+          class="form__section border-t-0 pt-0"
+        >
+          <expansion-panel :panel-name="$t('personal-details')">
+            <template #title>
+              <legend class="form__legend">
+                {{ $t("personal-details") }}
+              </legend>
+            </template>
+            <template #content>
               <div class="grid grid-cols-2 gap-x-3 gap-y-10">
                 <div class="form__group col-span-full">
+                  <span class="form__label">📷 {{ $t("profile-image") }} </span>
+                  <CvProfileImageUploader
+                    v-model="formSettings.profileImageDataUri"
+                  />
+                </div>
+                <div class="form__group col-span-full">
                   <label
-                    class="form__label flex"
-                    for="linkedin"
-                  >
-                    <svg class="form__icon rounded mr-1">
-                      <use href="@/assets/sprite.svg#linkedin" />
-                    </svg>
-                    Linkedin
-                  </label>
+                    class="form__label"
+                    for="job-pos"
+                  >💼 {{ $t("job-title") }}</label>
                   <input
-                    id="linkedin"
-                    v-model="formSettings.linkedin"
+                    id="job-pos"
+                    v-model="formSettings.jobTitle"
+                    class="form__control"
+                    type="text"
+                  >
+                </div>
+                <div class="form__group">
+                  <label
+                    class="form__label"
+                    for="first-name"
+                  >👤 {{ $t("first-name") }}</label>
+                  <input
+                    id="first-name"
+                    v-model="formSettings.name"
+                    class="form__control"
+                    type="text"
+                  >
+                </div>
+                <div class="form__group">
+                  <label
+                    class="form__label"
+                    for="last-name"
+                  >👤 {{ $t("last-name") }}</label>
+                  <input
+                    id="last-name"
+                    v-model="formSettings.lastName"
                     class="form__control"
                     type="text"
                   >
                 </div>
                 <div class="form__group col-span-full">
                   <label
-                    class="form__label flex"
-                    for="twitter"
-                  >
-                    <svg class="form__icon rounded mr-1">
-                      <use href="@/assets/sprite.svg#twitter" />
-                    </svg>
-                    Twitter
-                  </label>
+                    class="form__label"
+                    for="email"
+                  >✉️ {{ $t("email") }}</label>
                   <input
-                    id="twitter"
-                    v-model="formSettings.twitter"
+                    id="email"
+                    v-model="formSettings.email"
+                    class="form__control"
+                    type="email"
+                  >
+                </div>
+                <div class="form__group">
+                  <label
+                    class="form__label"
+                    for="location"
+                  >📍 {{ $t("location") }}</label>
+                  <input
+                    id="location"
+                    v-model="formSettings.location"
                     class="form__control"
                     type="text"
                   >
                 </div>
-                <div class="form__group col-span-full">
+                <div class="form__group">
                   <label
-                    class="form__label flex"
-                    for="github"
-                  >
-                    <svg class="form__icon mr-1">
-                      <use href="@/assets/sprite.svg#github" />
-                    </svg>
-                    GitHub
-                  </label>
+                    class="form__label"
+                    for="phone"
+                  >📱 {{ $t("phone-number") }}</label>
                   <input
-                    id="github"
-                    v-model="formSettings.github"
+                    id="phone"
+                    v-model="formSettings.phoneNumber"
                     class="form__control"
-                    type="text"
+                    type="tel"
                   >
                 </div>
                 <div class="form__group col-span-full">
                   <label
-                    class="form__label flex"
-                    for="website"
-                  >
-                    <svg class="form__icon mr-1">
-                      <use href="@/assets/sprite.svg#website" />
-                    </svg>
-                    Website
-                  </label>
-                  <input
-                    id="website"
-                    v-model="formSettings.website"
-                    class="form__control"
-                    type="text"
-                  >
+                    class="form__label"
+                    for="aboutme"
+                  >🌟 {{ $t("about-me") }}</label>
+                  <CvDisplayCheckbox
+                    class="mb-2"
+                    :display-section="Boolean(formSettings.displayAbout)"
+                    section-name="about"
+                  />
+                  <CvTextEditor
+                    id="aboutme"
+                    v-model="formSettings.aboutme"
+                    class="mt-2"
+                  />
                 </div>
               </div>
-            </div>
-          </template>
-        </expansion-panel>
-      </fieldset>
-      <!-- SOCIAL -->
+            </template>
+          </expansion-panel>
+        </fieldset>
 
-      <!-- HISTORY SECTIONS -->
-      <CvSettingsHistorySection
-        v-for="(value, key) in SectionNameList"
-        :key="key"
-        :section="key"
-        :name="value"
-      />
-      <!-- HISTORY SECTIONS -->
+        <!-- SKILLS (skills) -->
+        <fieldset
+          v-else-if="section === 'skills'"
+          class="form__section grid gap-3 border-t-0 pt-0"
+        >
+          <expansion-panel :panel-name="$t('skills')">
+            <template #title>
+              <legend class="form__legend">
+                {{ $t("skills") }}
+              </legend>
+            </template>
+            <template #content>
+              <div>
+                <CvDisplayCheckbox
+                  class="mb-10"
+                  :display-section="Boolean(formSettings.displaySkills)"
+                  section-name="skills"
+                />
+                <CvInputTags
+                  v-model="formSettings.jobSkills"
+                  tag-list-name="jobSkills"
+                  :tag-list-label="`🛠 ${$t('technical-skills')}`"
+                  :display="Boolean(formSettings.displayJobSkills)"
+                />
+                <CvInputTags
+                  v-model="formSettings.softSkills"
+                  tag-list-name="softSkills"
+                  :tag-list-label="`🧸 ${$t('soft-skills')}`"
+                  :display="Boolean(formSettings.displaySoftSkills)"
+                />
+                <CvInputTags
+                  v-model="formSettings.languages"
+                  tag-list-name="languages"
+                  :tag-list-label="`🌎 ${$t('languages')}`"
+                  :display="Boolean(formSettings.displayLanguages)"
+                />
+                <CvInputTags
+                  v-model="formSettings.interests"
+                  tag-list-name="interests"
+                  :tag-list-label="`🧸 ${$t('interests')}`"
+                  :display="Boolean(formSettings.displayInterests)"
+                />
+              </div>
+            </template>
+          </expansion-panel>
+        </fieldset>
 
-      <!-- SECTION ORDER -->
-      <fieldset class="form__section grid gap-3 px-6 py-3">
-        <legend class="form__legend">
-          Section order
-        </legend>
-        <ul class="grid gap-2">
-          <li
-            v-for="(section, index) in orderedSections"
-            :key="section"
-            class="flex items-center justify-between form__btn form__btn--ghost"
-          >
-            <span>{{ $t(sectionLabels[section]) }}</span>
-            <div class="flex gap-2">
-              <button
-                class="form__btn form__btn--ghost"
-                type="button"
-                :disabled="index === 0"
-                @click="moveSection({ section, direction: 'up' })"
-              >
-                ↑
-              </button>
-              <button
-                class="form__btn form__btn--ghost"
-                type="button"
-                :disabled="index === orderedSections.length - 1"
-                @click="moveSection({ section, direction: 'down' })"
-              >
-                ↓
-              </button>
-            </div>
-          </li>
-        </ul>
-      </fieldset>
-      <!-- SECTION ORDER -->
+        <!-- SOCIAL (social) -->
+        <fieldset
+          v-else-if="section === 'social'"
+          class="form__section grid gap-3 border-t-0 pt-0"
+        >
+          <expansion-panel :panel-name="$t('social')">
+            <template #title>
+              <legend class="form__legend">
+                {{ $t("social") }}
+              </legend>
+            </template>
+            <template #content>
+              <div>
+                <CvDisplayCheckbox
+                  class="form__display-checkbox mb-10"
+                  :display-section="formSettings.displaySocial"
+                  section-name="social"
+                />
+                <div class="grid grid-cols-2 gap-x-3 gap-y-10">
+                  <div class="form__group col-span-full">
+                    <label
+                      class="form__label flex"
+                      for="linkedin"
+                    >
+                      <svg class="form__icon rounded mr-1">
+                        <use href="@/assets/sprite.svg#linkedin" />
+                      </svg>
+                      Linkedin
+                    </label>
+                    <input
+                      id="linkedin"
+                      v-model="formSettings.linkedin"
+                      class="form__control"
+                      type="text"
+                    >
+                  </div>
+                  <div class="form__group col-span-full">
+                    <label
+                      class="form__label flex"
+                      for="twitter"
+                    >
+                      <svg class="form__icon rounded mr-1">
+                        <use href="@/assets/sprite.svg#twitter" />
+                      </svg>
+                      Twitter
+                    </label>
+                    <input
+                      id="twitter"
+                      v-model="formSettings.twitter"
+                      class="form__control"
+                      type="text"
+                    >
+                  </div>
+                  <div class="form__group col-span-full">
+                    <label
+                      class="form__label flex"
+                      for="github"
+                    >
+                      <svg class="form__icon mr-1">
+                        <use href="@/assets/sprite.svg#github" />
+                      </svg>
+                      GitHub
+                    </label>
+                    <input
+                      id="github"
+                      v-model="formSettings.github"
+                      class="form__control"
+                      type="text"
+                    >
+                  </div>
+                  <div class="form__group col-span-full">
+                    <label
+                      class="form__label flex"
+                      for="website"
+                    >
+                      <svg class="form__icon mr-1">
+                        <use href="@/assets/sprite.svg#website" />
+                      </svg>
+                      Website
+                    </label>
+                    <input
+                      id="website"
+                      v-model="formSettings.website"
+                      class="form__control"
+                      type="text"
+                    >
+                  </div>
+                </div>
+              </div>
+            </template>
+          </expansion-panel>
+        </fieldset>
+
+        <!-- EXPERIENCE (work) -->
+        <CvSettingsHistorySection
+          v-else-if="section === 'work'"
+          section="work"
+          :name="SectionNameList.work"
+          class="border-t-0 pt-0"
+        />
+
+        <!-- EDUCATION (education) -->
+        <CvSettingsHistorySection
+          v-else-if="section === 'education'"
+          section="education"
+          :name="SectionNameList.education"
+          class="border-t-0 pt-0"
+        />
+
+        <!-- PROJECTS (projects) -->
+        <CvSettingsHistorySection
+          v-else-if="section === 'projects'"
+          section="projects"
+          :name="SectionNameList.projects"
+          class="border-t-0 pt-0"
+        />
+      </div>
+      <!-- DYNAMIC REORDERABLE SECTIONS -->
 
       <!-- GOOGLE DRIVE SYNC -->
       <CvGoogleDriveSync />
