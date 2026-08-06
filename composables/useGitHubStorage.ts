@@ -94,16 +94,20 @@ export function useGitHubStorage() {
       githubState.error = 'GitHub Client ID not configured. Please set NUXT_PUBLIC_GITHUB_CLIENT_ID or use Personal Access Token below.'
       return
     }
-    const redirectUri = window.location.origin + window.location.pathname
+    const origin = window.location.origin
+    const pathname = window.location.pathname.includes('/create')
+      ? window.location.pathname
+      : `${window.location.pathname.replace(/\/$/, '')}/create`
+    const redirectUri = origin + pathname
     const scope = 'repo user'
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(redirectUri)}`
     window.location.href = authUrl
   }
 
-  async function checkGitHubUrlParams(routeQuery: any) {
+  async function checkGitHubUrlParams(routeQuery: any): Promise<boolean> {
     if (routeQuery.github_token) {
       await authenticate(routeQuery.github_token)
-      return
+      return true
     }
 
     if (routeQuery.code) {
@@ -116,6 +120,7 @@ export function useGitHubStorage() {
         })
         if (res?.access_token) {
           await authenticate(res.access_token)
+          return true
         }
       }
       catch (err: any) {
@@ -125,6 +130,7 @@ export function useGitHubStorage() {
         githubState.isLoading = false
       }
     }
+    return false
   }
 
   async function fetchGitHub(endpoint: string, options: RequestInit = {}): Promise<any> {
