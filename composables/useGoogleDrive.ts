@@ -36,8 +36,12 @@ export function useGoogleDrive() {
   loadSavedCredentials()
 
   function hasFormChanged(): boolean {
-    if (!driveState.savedSnapshot)
-      return true
+    if (!driveState.savedSnapshot) {
+      if (formSettings.value && Object.keys(formSettings.value).length > 0) {
+        driveState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
+      }
+      return false
+    }
     return JSON.stringify(formSettings.value) !== JSON.stringify(driveState.savedSnapshot)
   }
 
