@@ -29,7 +29,7 @@ let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 let lastAutoSaveTime = 0
 
 export function useGoogleDrive() {
-  const { formSettings, uploadCVData } = useCvState()
+  const { formSettings, uploadCVData, setActiveFileName } = useCvState()
   let tokenClient: any = null
 
   // Restore credentials & access token synchronously upon composable initialization
@@ -377,8 +377,10 @@ export function useGoogleDrive() {
       if (data && uploadCVData) {
         resetAllStorageActiveFiles(resetActiveDriveFile)
         uploadCVData(data, true)
+        const effectiveName = fileName || `CV_${formSettings.value.name}_${formSettings.value.lastName}.json`
+        setActiveFileName(effectiveName)
         driveState.activeFileId = fileId
-        driveState.activeFileName = fileName || `CV_${formSettings.value.name}_${formSettings.value.lastName}.json`
+        driveState.activeFileName = effectiveName
         driveState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
         driveState.isDirty = false
         driveState.isSignedIn = true
@@ -492,6 +494,7 @@ export function useGoogleDrive() {
       const result = await response.json()
       driveState.activeFileId = result.id
       driveState.activeFileName = fileName
+      setActiveFileName(fileName)
       driveState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
       driveState.lastSavedAt = new Date()
       driveState.isDirty = false

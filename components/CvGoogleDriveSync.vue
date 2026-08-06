@@ -15,7 +15,7 @@ const {
   authorizeDrive,
 } = useGoogleDrive()
 
-const { formSettings } = useCvState()
+const { formSettings, suggestedFileName } = useCvState()
 const route = useRoute()
 
 const showSaveAsModal = ref(false)
@@ -43,7 +43,7 @@ function handleOpenDrive() {
 
 function handleSaveDrive(asNewFile = false) {
   if (asNewFile || !driveState.activeFileId) {
-    saveAsFileName.value = driveState.activeFileName || `CV_${formSettings.value.name || 'Untitled'}_${formSettings.value.lastName || 'CV'}.json`
+    saveAsFileName.value = driveState.activeFileName || suggestedFileName.value
     showSaveAsModal.value = true
   }
   else {
