@@ -1,15 +1,31 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCvState } from '~/data/useCvState'
 import { useGoogleDrive } from '~/composables/useGoogleDrive'
 
-const { driveState, openPicker, saveToDrive, checkDriveUrlParams, signOutDrive, authorizeDrive } = useGoogleDrive()
+const {
+  driveState,
+  openPicker,
+  saveToDrive,
+  undoChanges,
+  setAutoSave,
+  checkDriveUrlParams,
+  signOutDrive,
+  authorizeDrive,
+} = useGoogleDrive()
+
 const { formSettings } = useCvState()
 const route = useRoute()
 
 const showSaveAsModal = ref(false)
 const saveAsFileName = ref('')
+
+const formattedLastSaved = computed(() => {
+  if (!driveState.lastSavedAt)
+    return ''
+  return driveState.lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+})
 
 onMounted(() => {
   if (route.query.fileId || route.query.state) {
@@ -61,6 +77,11 @@ function confirmSaveAs() {
   saveToDrive(true, saveAsFileName.value)
   showSaveAsModal.value = false
 }
+
+function toggleAutoSave(e: Event) {
+  const target = e.target as HTMLInputElement
+  setAutoSave(target.checked)
+}
 </script>
 
 <template>
@@ -75,6 +96,21 @@ function confirmSaveAs() {
         </svg>
         {{ $t("google-drive") }}
       </span>
+
+      <!-- Auto-Save Toggle -->
+      <label
+        v-if="driveState.accessToken"
+        class="flex items-center gap-1.5 text-[11px] text-slate-500 font-normal cursor-pointer select-none"
+        title="Automatically save changes to Google Drive 3 seconds after editing"
+      >
+        <input
+          type="checkbox"
+          :checked="driveState.autoSaveEnabled"
+          class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
+          @change="toggleAutoSave"
+        >
+        <span>Auto-save</span>
+      </label>
     </legend>
 
     <div class="flex flex-col gap-2 w-full">
@@ -97,13 +133,43 @@ function confirmSaveAs() {
       <div
         v-if="driveState.activeFileName"
         class="text-xs p-2 rounded flex items-center justify-between transition-colors gap-2"
-        :class="driveState.isDirty ? 'bg-amber-50 border border-amber-200 text-amber-900' : 'bg-emerald-50 border border-emerald-200 text-emerald-900'"
+        :class="driveState.isSaving
+          ? 'bg-blue-50 border border-blue-200 text-blue-900'
+          : driveState.isDirty
+            ? 'bg-amber-50 border border-amber-200 text-amber-900'
+            : 'bg-emerald-50 border border-emerald-200 text-emerald-900'"
       >
         <span class="truncate font-medium">📄 {{ driveState.activeFileName }}</span>
+
         <div class="flex items-center gap-1.5 shrink-0">
-          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded" :class="driveState.isDirty ? 'bg-amber-200 text-amber-900' : 'bg-emerald-200 text-emerald-900'">
-            {{ driveState.isDirty ? 'Unsaved' : 'Saved' }}
+          <!-- Status Badge -->
+          <span
+            class="text-[10px] font-semibold px-1.5 py-0.5 rounded"
+            :class="driveState.isSaving
+              ? 'bg-blue-200 text-blue-900'
+              : driveState.isDirty
+                ? 'bg-amber-200 text-amber-900'
+                : 'bg-emerald-200 text-emerald-900'"
+          >
+            {{ driveState.isSaving
+              ? 'Saving...'
+              : driveState.isDirty
+                ? 'Unsaved'
+                : formattedLastSaved ? `Saved ${formattedLastSaved}` : 'Saved' }}
           </span>
+
+          <!-- Undo / Revert Button -->
+          <button
+            v-if="driveState.isDirty && driveState.savedSnapshot"
+            type="button"
+            title="Undo / Revert changes to last saved state on Google Drive"
+            class="text-amber-700 hover:text-amber-900 bg-amber-200/60 hover:bg-amber-200 text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors"
+            @click="undoChanges"
+          >
+            ↩️ Undo
+          </button>
+
+          <!-- Disconnect / Close -->
           <button
             type="button"
             title="Disconnect / Close file"

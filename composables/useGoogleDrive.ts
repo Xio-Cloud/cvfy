@@ -16,22 +16,35 @@ const driveState = reactive({
   isSaving: false,
   isLoadingFile: false,
   isDirty: false,
+  autoSaveEnabled: true,
   lastSavedAt: null as Date | null,
+  savedSnapshot: null as any,
   clientId: '' as string,
   apiKey: '' as string,
   error: '' as string,
 })
 
+let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+
 export function useGoogleDrive() {
   const { formSettings, uploadCVData } = useCvState()
   let tokenClient: any = null
 
-  // Watch formSettings changes to track unsaved status
+  // Watch formSettings changes to track unsaved status and trigger Auto-Save
   watch(
     formSettings,
     () => {
-      if (driveState.activeFileId) {
+      if (driveState.activeFileId && driveState.accessToken) {
         driveState.isDirty = true
+        if (driveState.autoSaveEnabled) {
+          if (autoSaveTimer)
+            clearTimeout(autoSaveTimer)
+          autoSaveTimer = setTimeout(() => {
+            if (driveState.isDirty && !driveState.isSaving && driveState.activeFileId) {
+              saveToDrive(false)
+            }
+          }, 3000)
+        }
       }
     },
     { deep: true },
@@ -47,6 +60,10 @@ export function useGoogleDrive() {
       driveState.apiKey = localStorage.getItem('gdrive_api_key') || defaultApiKey
       driveState.activeFileId = localStorage.getItem('gdrive_active_file_id') || ''
       driveState.activeFileName = localStorage.getItem('gdrive_active_file_name') || ''
+      const savedAutoSave = localStorage.getItem('gdrive_auto_save')
+      if (savedAutoSave !== null) {
+        driveState.autoSaveEnabled = savedAutoSave === 'true'
+      }
 
       const token = localStorage.getItem('gdrive_access_token') || ''
       const expiresAt = Number.parseInt(localStorage.getItem('gdrive_token_expires_at') || '0', 10)
@@ -61,6 +78,13 @@ export function useGoogleDrive() {
     else {
       driveState.clientId = defaultClientId
       driveState.apiKey = defaultApiKey
+    }
+  }
+
+  function setAutoSave(enabled: boolean) {
+    driveState.autoSaveEnabled = enabled
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('gdrive_auto_save', String(enabled))
     }
   }
 
@@ -299,6 +323,7 @@ export function useGoogleDrive() {
         uploadCVData(data)
         driveState.activeFileId = fileId
         driveState.activeFileName = fileName || `CV_${formSettings.value.name}_${formSettings.value.lastName}.json`
+        driveState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
         driveState.isDirty = false
         if (typeof localStorage !== 'undefined') {
           localStorage.setItem('gdrive_active_file_id', driveState.activeFileId)
@@ -315,6 +340,11 @@ export function useGoogleDrive() {
   }
 
   async function saveToDrive(asNewFile = false, customFileName?: string): Promise<void> {
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer)
+      autoSaveTimer = null
+    }
+
     driveState.isSaving = true
     driveState.error = ''
     try {
@@ -373,6 +403,7 @@ export function useGoogleDrive() {
       const result = await response.json()
       driveState.activeFileId = result.id
       driveState.activeFileName = fileName
+      driveState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
       driveState.lastSavedAt = new Date()
       driveState.isDirty = false
 
@@ -386,6 +417,14 @@ export function useGoogleDrive() {
     }
     finally {
       driveState.isSaving = false
+    }
+  }
+
+  function undoChanges() {
+    if (driveState.savedSnapshot && uploadCVData) {
+      uploadCVData({ formSettings: driveState.savedSnapshot })
+      driveState.isDirty = false
+      driveState.error = ''
     }
   }
 
@@ -417,6 +456,7 @@ export function useGoogleDrive() {
     driveState.accessToken = ''
     driveState.activeFileId = ''
     driveState.activeFileName = ''
+    driveState.savedSnapshot = null
     driveState.isDirty = false
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('gdrive_access_token')
@@ -434,6 +474,8 @@ export function useGoogleDrive() {
     openPicker,
     loadFileFromDrive,
     saveToDrive,
+    undoChanges,
+    setAutoSave,
     authorizeDrive,
     checkDriveUrlParams,
     signOutDrive,
