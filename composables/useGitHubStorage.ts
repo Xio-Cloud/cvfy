@@ -198,7 +198,7 @@ When using AI coding assistants (such as **Antigravity**, **Cursor**, **GitHub C
 }
 
 export function useGitHubStorage() {
-  const { formSettings, uploadCVData } = useCvState()
+  const { formSettings, uploadCVData, setActiveFileName } = useCvState()
 
   function hasGitHubFormChanged(): boolean {
     if (!githubState.activeFilePath || !githubState.token) {
@@ -621,6 +621,8 @@ export function useGitHubStorage() {
         uploadCVData(jsonData, true)
         githubState.activeFilePath = filePath
         githubState.activeFileSha = data.sha
+        const fileName = filePath.split('/').pop() || filePath
+        setActiveFileName(fileName)
         githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
         githubState.isDirty = false
 
@@ -691,6 +693,8 @@ export function useGitHubStorage() {
 
       githubState.activeFilePath = targetPath
       githubState.activeFileSha = resData.content?.sha || ''
+      const cleanFileName = targetPath.split('/').pop() || targetPath
+      setActiveFileName(cleanFileName)
       githubState.savedSnapshot = JSON.parse(JSON.stringify(formSettings.value))
       githubState.lastCommittedAt = new Date()
       githubState.isDirty = false

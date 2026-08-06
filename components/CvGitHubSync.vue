@@ -19,7 +19,7 @@ const {
   disconnectGitHub,
 } = useGitHubStorage()
 
-const { formSettings } = useCvState()
+const { formSettings, suggestedFileName } = useCvState()
 const route = useRoute()
 
 // Token Auth Input
@@ -119,7 +119,7 @@ async function handleConfirmCreateBranch() {
 }
 
 function handleOpenCommitModal() {
-  const defaultPath = githubState.activeFilePath || `CV_${formSettings.value.name || 'Untitled'}_${formSettings.value.lastName || 'CV'}.json`
+  const defaultPath = githubState.activeFilePath || suggestedFileName.value
   commitFilePath.value = defaultPath
   commitMessage.value = githubState.activeFilePath
     ? `feat(cv): update ${githubState.activeFilePath}`
