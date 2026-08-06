@@ -35,15 +35,6 @@ const config = {
   ],
 }
 
-const sectionLabels: Record<CvPart, string> = {
-  about: 'about-me',
-  skills: 'skills',
-  social: 'social',
-  work: 'experience',
-  education: 'education',
-  projects: 'projects',
-}
-
 const orderedSections = computed(() => formSettings.value.sectionOrder ?? [...CV_PARTS])
 
 // Drag and drop state
@@ -281,43 +272,38 @@ function getCurrentColor(colorValue: string): {
         @drop="onDrop(section, $event)"
         @dragend="onDragEnd"
       >
-        <!-- Reorder Handle & Section Header -->
-        <div class="flex items-center justify-between px-6 pt-3 pb-1 text-slate-400 bg-slate-100/60 border-t border-slate-200/80">
-          <div class="flex items-center gap-1.5 cursor-grab active:cursor-grabbing text-xs select-none">
-            <span class="text-base font-bold text-slate-400 hover:text-slate-600">⋮⋮</span>
-            <span class="text-[11px] font-bold tracking-wider uppercase text-slate-500">{{ $t(sectionLabels[section]) }}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <button
-              type="button"
-              class="px-1.5 py-0.5 hover:bg-slate-200 rounded text-[11px] font-bold text-slate-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-              :disabled="index === 0"
-              title="Move Section Up"
-              @click.stop="moveSection({ section, direction: 'up' })"
-            >
-              ▲
-            </button>
-            <button
-              type="button"
-              class="px-1.5 py-0.5 hover:bg-slate-200 rounded text-[11px] font-bold text-slate-600 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-              :disabled="index === orderedSections.length - 1"
-              title="Move Section Down"
-              @click.stop="moveSection({ section, direction: 'down' })"
-            >
-              ▼
-            </button>
-          </div>
-        </div>
-
         <!-- PERSONAL DETAILS (about) -->
         <fieldset
           v-if="section === 'about'"
-          class="form__section border-t-0 pt-0"
+          class="form__section"
         >
           <expansion-panel :panel-name="$t('personal-details')">
             <template #title>
-              <legend class="form__legend">
-                {{ $t("personal-details") }}
+              <legend class="form__legend flex items-center justify-between w-full pr-2">
+                <span class="flex items-center gap-1.5 cursor-grab active:cursor-grabbing" title="Drag to reorder section">
+                  <span class="text-slate-400 hover:text-slate-700 text-sm">⋮⋮</span>
+                  <span>{{ $t("personal-details") }}</span>
+                </span>
+                <span class="flex items-center gap-1" @click.stop>
+                  <button
+                    type="button"
+                    class="hover:bg-slate-200 p-0.5 rounded text-[10px] text-slate-500 disabled:opacity-20 transition-colors"
+                    :disabled="index === 0"
+                    title="Move section up"
+                    @click.stop="moveSection({ section: 'about', direction: 'up' })"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    class="hover:bg-slate-200 p-0.5 rounded text-[10px] text-slate-500 disabled:opacity-20 transition-colors"
+                    :disabled="index === orderedSections.length - 1"
+                    title="Move section down"
+                    @click.stop="moveSection({ section: 'about', direction: 'down' })"
+                  >
+                    ▼
+                  </button>
+                </span>
               </legend>
             </template>
             <template #content>
@@ -424,12 +410,35 @@ function getCurrentColor(colorValue: string): {
         <!-- SKILLS (skills) -->
         <fieldset
           v-else-if="section === 'skills'"
-          class="form__section grid gap-3 border-t-0 pt-0"
+          class="form__section grid gap-3"
         >
           <expansion-panel :panel-name="$t('skills')">
             <template #title>
-              <legend class="form__legend">
-                {{ $t("skills") }}
+              <legend class="form__legend flex items-center justify-between w-full pr-2">
+                <span class="flex items-center gap-1.5 cursor-grab active:cursor-grabbing" title="Drag to reorder section">
+                  <span class="text-slate-400 hover:text-slate-700 text-sm">⋮⋮</span>
+                  <span>{{ $t("skills") }}</span>
+                </span>
+                <span class="flex items-center gap-1" @click.stop>
+                  <button
+                    type="button"
+                    class="hover:bg-slate-200 p-0.5 rounded text-[10px] text-slate-500 disabled:opacity-20 transition-colors"
+                    :disabled="index === 0"
+                    title="Move section up"
+                    @click.stop="moveSection({ section: 'skills', direction: 'up' })"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    class="hover:bg-slate-200 p-0.5 rounded text-[10px] text-slate-500 disabled:opacity-20 transition-colors"
+                    :disabled="index === orderedSections.length - 1"
+                    title="Move section down"
+                    @click.stop="moveSection({ section: 'skills', direction: 'down' })"
+                  >
+                    ▼
+                  </button>
+                </span>
               </legend>
             </template>
             <template #content>
@@ -471,12 +480,35 @@ function getCurrentColor(colorValue: string): {
         <!-- SOCIAL (social) -->
         <fieldset
           v-else-if="section === 'social'"
-          class="form__section grid gap-3 border-t-0 pt-0"
+          class="form__section grid gap-3"
         >
           <expansion-panel :panel-name="$t('social')">
             <template #title>
-              <legend class="form__legend">
-                {{ $t("social") }}
+              <legend class="form__legend flex items-center justify-between w-full pr-2">
+                <span class="flex items-center gap-1.5 cursor-grab active:cursor-grabbing" title="Drag to reorder section">
+                  <span class="text-slate-400 hover:text-slate-700 text-sm">⋮⋮</span>
+                  <span>{{ $t("social") }}</span>
+                </span>
+                <span class="flex items-center gap-1" @click.stop>
+                  <button
+                    type="button"
+                    class="hover:bg-slate-200 p-0.5 rounded text-[10px] text-slate-500 disabled:opacity-20 transition-colors"
+                    :disabled="index === 0"
+                    title="Move section up"
+                    @click.stop="moveSection({ section: 'social', direction: 'up' })"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    class="hover:bg-slate-200 p-0.5 rounded text-[10px] text-slate-500 disabled:opacity-20 transition-colors"
+                    :disabled="index === orderedSections.length - 1"
+                    title="Move section down"
+                    @click.stop="moveSection({ section: 'social', direction: 'down' })"
+                  >
+                    ▼
+                  </button>
+                </span>
               </legend>
             </template>
             <template #content>
@@ -566,7 +598,8 @@ function getCurrentColor(colorValue: string): {
           v-else-if="section === 'work'"
           section="work"
           :name="SectionNameList.work"
-          class="border-t-0 pt-0"
+          :index="index"
+          :total-sections="orderedSections.length"
         />
 
         <!-- EDUCATION (education) -->
@@ -574,7 +607,8 @@ function getCurrentColor(colorValue: string): {
           v-else-if="section === 'education'"
           section="education"
           :name="SectionNameList.education"
-          class="border-t-0 pt-0"
+          :index="index"
+          :total-sections="orderedSections.length"
         />
 
         <!-- PROJECTS (projects) -->
@@ -582,7 +616,8 @@ function getCurrentColor(colorValue: string): {
           v-else-if="section === 'projects'"
           section="projects"
           :name="SectionNameList.projects"
-          class="border-t-0 pt-0"
+          :index="index"
+          :total-sections="orderedSections.length"
         />
       </div>
       <!-- DYNAMIC REORDERABLE SECTIONS -->

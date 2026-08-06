@@ -11,7 +11,7 @@ const { t, locale } = useI18n()
 const href = `http://cv.xio.vn${route.path}`
 
 // Resizable Sidebar State
-const DEFAULT_SIDEBAR_WIDTH = 380
+const DEFAULT_SIDEBAR_WIDTH = 340
 const MIN_SIDEBAR_WIDTH = 280
 const MAX_SIDEBAR_WIDTH = 650
 
